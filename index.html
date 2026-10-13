@@ -21,6 +21,7 @@
                         neonPurple: '#9d00ff',
                         neonYellow: '#ffe600',
                         neonGreen: '#00ff66',
+                        neonOrange: '#ff8c00',
                     }
                 }
             }
@@ -62,9 +63,9 @@
             </div>
             <div>
                 <h1 class="text-lg font-black italic tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-yellow-300">
-                    GD SMART BUILDER & AI 2.0
+                    GD SMART BUILDER & AIRPLANE
                 </h1>
-                <p class="text-[11px] text-slate-400 font-mono" id="subHeaderDesc">Умный спавн • Предиктивный ИИ • Поворот • RU/EN</p>
+                <p class="text-[11px] text-slate-400 font-mono" id="subHeaderDesc">Кубик + Самолётик • Поворот • RU/EN</p>
             </div>
         </div>
 
@@ -177,6 +178,10 @@
                     <span class="text-base">🟡</span> <span data-ru="Орб" data-en="Jump Orb">Орб</span>
                 </button>
 
+                <button data-tool="AIRPLANE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-orange-400 hover:bg-slate-700 transition shrink-0">
+                    <span class="text-base">✈️</span> <span data-ru="Портал Самолётика" data-en="Airplane Portal">Портал Самолётика</span>
+                </button>
+
                 <button data-tool="GOAL" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-emerald-400 hover:bg-slate-700 transition shrink-0">
                     <span class="text-base">🏁</span> <span data-ru="Финиш" data-en="Goal">Финиш</span>
                 </button>
@@ -283,6 +288,8 @@
             size: 34,
             rotation: 0,
             isGrounded: false,
+            mode: 'cube', // 'cube' или 'airplane'
+            airplaneLane: 0, // 0 (низ), 1 (средне), 2 (верх)
             trail: []
         };
 
@@ -321,165 +328,62 @@
             player.vy = 0;
             player.rotation = 0;
             player.isGrounded = true;
+            player.mode = 'cube';
+            player.airplaneLane = 0;
             player.trail = [];
             levelObjects.forEach(o => o.used = false);
             document.getElementById('winModal').classList.add('hidden');
         }
 
-        function simulateTrajectory(startX, startY, startVy, shouldJumpOnStart, activateOrbOnStart = false) {
-            const gy = getGroundY();
-            let simX = startX;
-            let simY = startY;
-            let simVy = startVy;
-            let isGrounded = false;
-            let trajectoryPoints = [];
-
-            if (shouldJumpOnStart) {
-                simVy = JUMP_FORCE;
-            } else if (activateOrbOnStart) {
-                simVy = ORB_FORCE;
-            }
-
-            for (let step = 0; step < 80; step++) {
-                simX += GAME_SPEED;
-                simVy += GRAVITY;
-                simY += simVy;
-
-                if (simY >= gy - player.size) {
-                    simY = gy - player.size;
-                    simVy = 0;
-                    isGrounded = true;
-                }
-
-                trajectoryPoints.push({ x: simX, y: simY });
-
-                for (let obj of levelObjects) {
-                    const oy = gy - obj.y - (obj.h || 40);
-                    const ps = player.size;
-
-                    if (obj.type === 'SPIKE') {
-                        if (simX + ps - 8 > obj.x && simX + 8 < obj.x + 40 && simY + ps > oy && simY + 8 < oy + 40) {
-                            return { safe: false, crashReason: 'SPIKE', points: trajectoryPoints };
-                        }
-                    } else if (obj.type === 'BLOCK') {
-                        const bw = obj.w || 40;
-                        const bh = obj.h || 40;
-                        if (simX + ps > obj.x && simX < obj.x + bw && simY + ps > oy && simY < oy + bh) {
-                            if (simY + ps - simVy <= oy + 12) {
-                                simY = oy - ps;
-                                simVy = 0;
-                                isGrounded = true;
-                            } else {
-                                return { safe: false, crashReason: 'BLOCK_SIDE', points: trajectoryPoints };
-                            }
-                        }
-                    }
-                }
-                if (isGrounded && step > 10) break;
-            }
-            return { safe: true, points: trajectoryPoints };
-        }
-
-        function updateSmartAILogic() {
-            if (currentMode !== 'AI' || !isRunning) return;
-            const gy = getGroundY();
-            aiPredictedTrajectory = [];
-
-            const noJumpSim = simulateTrajectory(player.x, player.y, player.vy, false);
-            if (!noJumpSim.safe) {
-                if (player.isGrounded) {
-                    const jumpSim = simulateTrajectory(player.x, player.y, player.vy, true);
-                    if (jumpSim.safe) {
-                        aiPredictedTrajectory = jumpSim.points;
-                        executeJump(`Точный прыжок высчитан!`);
-                        return;
-                    }
-                }
-            }
-
-            if (!player.isGrounded) {
-                levelObjects.forEach(obj => {
-                    if (obj.type === 'ORB' && !obj.used) {
-                        const oy = gy - obj.y - 40;
-                        const dist = Math.hypot((player.x + player.size/2) - (obj.x + 20), (player.y + player.size/2) - (oy + 20));
-                        if (dist < 55) {
-                            const orbSim = simulateTrajectory(player.x, player.y, player.vy, false, true);
-                            if (orbSim.safe) {
-                                aiPredictedTrajectory = orbSim.points;
-                                executeJump('Орб активирован!');
-                            }
-                        }
-                    }
-                });
-            }
-        }
-
-        function executeJump(source = '') {
+        function executeAction() {
             sound.init();
-            if (player.isGrounded) {
-                player.vy = JUMP_FORCE;
-                player.isGrounded = false;
+            if (player.mode === 'cube') {
+                if (player.isGrounded) {
+                    player.vy = JUMP_FORCE;
+                    player.isGrounded = false;
+                    sound.playJump();
+                    createParticles(player.x, player.y + player.size, '#00f3ff', 6);
+                }
+            } else if (player.mode === 'airplane') {
+                player.airplaneLane = (player.airplaneLane + 1) % 3;
                 sound.playJump();
-                createParticles(player.x, player.y + player.size, '#00f3ff', 6);
-                if (source && currentMode === 'AI') logAI(source);
-            } else {
-                levelObjects.forEach(obj => {
-                    if (obj.type === 'ORB' && !obj.used) {
-                        const gy = getGroundY();
-                        const oy = gy - obj.y - 40;
-                        const dist = Math.hypot((player.x + player.size/2) - (obj.x + 20), (player.y + player.size/2) - (oy + 20));
-                        if (dist < 55) {
-                            player.vy = ORB_FORCE;
-                            obj.used = true;
-                            sound.playOrb();
-                            createParticles(obj.x + 20, oy + 20, '#ffe600', 12);
-                            if (source && currentMode === 'AI') logAI(source);
-                        }
-                    }
-                });
             }
-        }
-
-        function handleHeldInput() {
-            if (currentMode === 'PLAY' && isRunning && isJumpHeld) {
-                executeJump('Зажатие');
-            }
-        }
-
-        function logAI(msg) {
-            const el = document.getElementById('aiThoughtLog');
-            const time = new Date().toLocaleTimeString().split(' ')[0];
-            el.innerHTML = `<div class="text-cyan-300"><span class="text-slate-500">[${time}]</span> ${msg}</div>` + el.innerHTML;
         }
 
         function updatePhysics() {
             if (!isRunning || currentMode === 'EDITOR') return;
 
-            updateSmartAILogic();
-            handleHeldInput();
+            if (player.mode === 'cube') {
+                player.vy += GRAVITY;
+                player.y += player.vy;
+
+                const gy = getGroundY();
+                if (player.y >= gy - player.size) {
+                    player.y = gy - player.size;
+                    player.vy = 0;
+                    player.isGrounded = true;
+                } else {
+                    player.isGrounded = false;
+                }
+
+                if (!player.isGrounded) {
+                    player.rotation += 8.5;
+                } else {
+                    player.rotation = Math.round(player.rotation / 90) * 90;
+                }
+            } else if (player.mode === 'airplane') {
+                const gy = getGroundY();
+                let targetY = gy - player.size - (player.airplaneLane * 60);
+                player.y += (targetY - player.y) * 0.25;
+                player.vy = 0;
+                player.isGrounded = false;
+                player.rotation = (player.airplaneLane - 1) * 15;
+            }
 
             player.x += player.vx;
-            player.vy += GRAVITY;
-            player.y += player.vy;
-
-            const gy = getGroundY();
-
-            if (player.y >= gy - player.size) {
-                player.y = gy - player.size;
-                player.vy = 0;
-                player.isGrounded = true;
-            } else {
-                player.isGrounded = false;
-            }
-
-            if (!player.isGrounded) {
-                player.rotation += 8.5;
-            } else {
-                player.rotation = Math.round(player.rotation / 90) * 90;
-            }
 
             if (Math.random() < 0.6) {
-                player.trail.push({ x: player.x + player.size/2, y: player.y + player.size/2, alpha: 0.6 });
+                player.trail.push({ x: player.x + player.size/2, y: player.y + player.size/2, alpha: 0.6, color: player.mode === 'airplane' ? '#ff8c00' : '#00f3ff' });
             }
             player.trail.forEach(t => t.alpha -= 0.04);
             player.trail = player.trail.filter(t => t.alpha > 0);
@@ -487,6 +391,7 @@
             const px = player.x;
             const py = player.y;
             const ps = player.size;
+            const gy = getGroundY();
 
             let finishGate = levelObjects.find(o => o.type === 'GOAL');
             let maxLevelX = finishGate ? finishGate.x : Math.max(...levelObjects.map(o => o.x), 1500);
@@ -498,24 +403,33 @@
                     const bw = obj.w || 40;
                     const bh = obj.h || 40;
                     if (px + ps > obj.x && px < obj.x + bw && py + ps > oy && py < oy + bh) {
-                        if (py + ps - player.vy <= oy + 12) {
+                        if (player.mode === 'cube' && py + ps - player.vy <= oy + 12) {
                             player.y = oy - ps;
                             player.vy = 0;
                             player.isGrounded = true;
                         } else {
-                            handleDeath('Столкновение с боком блока');
+                            handleDeath('Столкновение с блоком');
                         }
                     }
                 } else if (obj.type === 'SPIKE') {
                     if (px + ps - 8 > obj.x && px + 8 < obj.x + 40 && py + ps > oy && py + 8 < oy + 40) {
                         handleDeath('Касание шипа');
                     }
-                } else if (obj.type === 'PAD') {
+                } else if (obj.type === 'PAD' && player.mode === 'cube') {
                     if (px + ps > obj.x && px < obj.x + 40 && py + ps >= oy - 5 && py < oy + 20) {
                         player.vy = PAD_FORCE;
                         player.isGrounded = false;
                         sound.playPad();
                         createParticles(obj.x + 20, oy, '#ffe600', 10);
+                    }
+                } else if (obj.type === 'AIRPLANE_PORTAL') {
+                    if (px + ps > obj.x && px < obj.x + 40 && py + ps > oy && py < oy + 40) {
+                        if (player.mode !== 'airplane') {
+                            player.mode = 'airplane';
+                            player.airplaneLane = 0;
+                            createParticles(obj.x + 20, oy + 20, '#ff8c00', 15);
+                            sound.playOrb();
+                        }
                     }
                 } else if (obj.type === 'GOAL') {
                     const goalHeight = obj.h || 40;
@@ -539,7 +453,6 @@
             createParticles(player.x + player.size/2, player.y + player.size/2, '#ff007f', 22);
             attemptCount++;
             document.getElementById('hudAttemptText').innerText = `#${attemptCount}`;
-            if (currentMode === 'AI') logAI(`💥 Пересчёт траектории: ${reason}`);
             resetPlayer();
         }
 
@@ -603,18 +516,18 @@
                 ctx.restore();
             }
 
-            if (currentMode === 'AI' && aiPredictedTrajectory.length > 0) {
-                ctx.save();
-                ctx.beginPath();
-                ctx.strokeStyle = 'rgba(255, 0, 127, 0.7)';
-                ctx.lineWidth = 3;
-                ctx.setLineDash([6, 6]);
-                aiPredictedTrajectory.forEach((pt, i) => {
-                    if (i === 0) ctx.moveTo(pt.x + 17, pt.y + 17);
-                    else ctx.lineTo(pt.x + 17, pt.y + 17);
-                });
-                ctx.stroke();
-                ctx.restore();
+            // Направляющие линии для самолётика в режиме игры
+            if (isRunning && player.mode === 'airplane') {
+                ctx.strokeStyle = 'rgba(255, 140, 0, 0.25)';
+                ctx.setLineDash([5, 5]);
+                for (let i = 0; i < 3; i++) {
+                    let laneY = gy - player.size - (i * 60);
+                    ctx.beginPath();
+                    ctx.moveTo(cameraX, laneY + player.size/2);
+                    ctx.lineTo(cameraX + canvas.width, laneY + player.size/2);
+                    ctx.stroke();
+                }
+                ctx.setLineDash([]);
             }
 
             levelObjects.forEach(obj => {
@@ -652,6 +565,15 @@
                     ctx.strokeStyle = '#fff';
                     ctx.lineWidth = 2;
                     ctx.stroke();
+                } else if (obj.type === 'AIRPLANE_PORTAL') {
+                    ctx.fillStyle = '#ff8c00';
+                    ctx.fillRect(-10, -25, 20, 50);
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(-10, -25, 20, 50);
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 9px monospace';
+                    ctx.fillText('AIR', -10, 3);
                 } else if (obj.type === 'GOAL') {
                     ctx.fillStyle = 'rgba(0, 255, 102, 0.25)';
                     ctx.fillRect(-20, -20, 40, 40);
@@ -666,18 +588,32 @@
 
             if (currentMode !== 'EDITOR') {
                 player.trail.forEach(t => {
-                    ctx.fillStyle = `rgba(0, 243, 255, ${t.alpha})`;
+                    ctx.fillStyle = t.color === '#ff8c00' ? `rgba(255, 140, 0, ${t.alpha})` : `rgba(0, 243, 255, ${t.alpha})`;
                     ctx.fillRect(t.x - 12, t.y - 12, 24, 24);
                 });
 
                 ctx.save();
                 ctx.translate(player.x + player.size/2, player.y + player.size/2);
                 ctx.rotate((player.rotation * Math.PI) / 180);
-                ctx.fillStyle = '#00f3ff';
-                ctx.fillRect(-player.size/2, -player.size/2, player.size, player.size);
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 2.5;
-                ctx.strokeRect(-player.size/2, -player.size/2, player.size, player.size);
+
+                if (player.mode === 'cube') {
+                    ctx.fillStyle = '#00f3ff';
+                    ctx.fillRect(-player.size/2, -player.size/2, player.size, player.size);
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2.5;
+                    ctx.strokeRect(-player.size/2, -player.size/2, player.size, player.size);
+                } else {
+                    ctx.fillStyle = '#ff8c00';
+                    ctx.beginPath();
+                    ctx.moveTo(-15, 10);
+                    ctx.lineTo(20, 0);
+                    ctx.lineTo(-15, -10);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
                 ctx.restore();
             }
 
@@ -715,7 +651,6 @@
             requestAnimationFrame(loop);
         }
 
-        // Левый клик — поставить объект
         canvas.addEventListener('mousedown', (e) => {
             sound.init();
             if (currentMode === 'EDITOR' && e.button === 0) {
@@ -743,11 +678,10 @@
                 }
             } else if (currentMode === 'PLAY') {
                 isJumpHeld = true;
-                executeJump('Клик мыши');
+                executeAction();
             }
         });
 
-        // Правый клик — удалить конкретный объект под курсором
         canvas.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             if (currentMode === 'EDITOR') {
@@ -770,7 +704,7 @@
 
         window.addEventListener('keydown', (e) => {
             if ((e.code === 'Space' || e.code === 'ArrowUp') && currentMode === 'PLAY') {
-                if (!isJumpHeld) executeJump('Пробел');
+                if (!isJumpHeld) executeAction();
                 isJumpHeld = true;
             }
         });
