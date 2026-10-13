@@ -1,326 +1,907 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry Dash - Classic Stable</title>
-    <style>
-        body {
-            margin: 0;
-            background: radial-gradient(circle at center, #1a1a2e 0%, #0f0f1a 100%);
-            color: #fff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-            user-select: none;
-        }
-        #game-container {
-            text-align: center;
-            background: rgba(20, 20, 35, 0.8);
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(74, 74, 226, 0.2);
-            border: 2px solid #2a2a4e;
-        }
-        canvas {
-            background: linear-gradient(to bottom, #1e1e3f, #0f0f1f);
-            border: 3px solid #ff8c00;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(255, 140, 0, 0.4);
-            display: block;
-            margin: 0 auto 15px auto;
-        }
-        .ui-panel {
-            margin-top: 12px;
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        button, select {
-            background: linear-gradient(to bottom, #2a2a4e, #1a1a3e);
-            color: #fff;
-            border: 2px solid #4a4ae2;
-            padding: 10px 18px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        button:hover, select:hover {
-            background: linear-gradient(to bottom, #3a3a6e, #2a2a4e);
-            border-color: #ff8c00;
-            box-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
-            transform: translateY(-2px);
-        }
-        button.active {
-            background: linear-gradient(to bottom, #ff8c00, #e07000);
-            border-color: #fff;
-            color: #000;
-            box-shadow: 0 0 15px rgba(255, 140, 0, 0.8);
-        }
-        select {
-            padding: 8px 12px;
-        }
-        .info {
-            font-size: 13px;
-            color: #b8b8d0;
-            margin-top: 12px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-        }
-    </style>
-</head>
-<body>
-
-<div id="game-container">
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
-    
-    <div class="ui-panel">
-        <button id="btnPlay" onclick="togglePlay()">▶ Играть</button>
-        <button id="btnAI" onclick="toggleAI()">🤖 AI: ВКЛ</button>
-        <button id="btnEditor" onclick="toggleEditor()">✏️ Редактор: ВЫКЛ</button>
-        <button onclick="resetLevel()">🔄 Сбросить</button>
-    </div>
-
-    <div class="ui-panel" id="editorTools" style="display: none;">
-        <span>Инструмент:</span>
-        <select id="toolSelect">
-            <option value="block">Блок</option>
-            <option value="spike">Шип</option>
-            <option value="orb">Прыжковая сфера</option>
-            <option value="pad">Батут</option>
-        </select>
-        <button onclick="clearLevel()" style="background: linear-gradient(to bottom, #8b0000, #500000); border-color: #ff3333;">🗑 Очистить</button>
-    </div>
-
-    <div class="info">Пробел / Клик — Прыжок. В редакторе: ЛКМ — поставить, ПКМ — удалить объект.</div>
-</div>
-
-<script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-
-    let isPlaying = false;
-    let isAI = true;
-    let isEditor = false;
-
-    let player = {
-        x: 100,
-        y: 300,
-        size: 30,
-        vy: 0,
-        onGround: false
-    };
-
-    const groundY = 330;
-    const gravity = 0.8;
-    const jumpForce = -12;
-    let cameraX = 0;
-    let gameSpeed = 5;
-
-    let levelObjects = [
-        { x: 400, y: 300, type: "block" },
-        { x: 600, y: 300, type: "spike" },
-        { x: 800, y: 250, type: "orb" },
-        { x: 1000, y: 310, type: "pad" },
-        { x: 1300, y: 300, type: "spike" }
-    ];
-
-    function togglePlay() {
-        isPlaying = !isPlaying;
-        document.getElementById("btnPlay").innerText = isPlaying ? "⏸ Пауза" : "▶ Играть";
-        document.getElementById("btnPlay").classList.toggle("active", isPlaying);
-    }
-
-    function toggleAI() {
-        isAI = !isAI;
-        const btn = document.getElementById("btnAI");
-        btn.innerText = `🤖 AI: ${isAI ? "ВКЛ" : "ВЫКЛ"}`;
-        btn.classList.toggle("active", isAI);
-    }
-
-    function toggleEditor() {
-        isEditor = !isEditor;
-        document.getElementById("btnEditor").innerText = `✏️ Редактор: ${isEditor ? "ВКЛ" : "ВЫКЛ"}`;
-        document.getElementById("btnEditor").classList.toggle("active", isEditor);
-        document.getElementById("editorTools").style.display = isEditor ? "flex" : "none";
-        if (isEditor) isPlaying = false;
-    }
-
-    function resetLevel() {
-        player.x = 100;
-        player.y = 300;
-        player.vy = 0;
-        player.onGround = false;
-        cameraX = 0;
-    }
-
-    function clearLevel() {
-        levelObjects = [];
-    }
-
-    window.addEventListener("keydown", (e) => {
-        if (e.code === "Space") {
-            e.preventDefault();
-            handleAction();
-        }
-    });
-
-    canvas.addEventListener("click", (e) => {
-        if (isEditor) {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left + cameraX;
-            const mouseY = e.clientY - rect.top;
-            const gridX = Math.floor(mouseX / 30) * 30;
-            const gridY = Math.floor(mouseY / 30) * 30;
-
-            const tool = document.getElementById("toolSelect").value;
-            levelObjects.push({ x: gridX, y: gridY, type: tool });
-        } else {
-            handleAction();
-        }
-    });
-
-    canvas.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-        if (isEditor) {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left + cameraX;
-            const mouseY = e.clientY - rect.top;
-
-            const existingIndex = levelObjects.findIndex(obj => 
-                mouseX >= obj.x && mouseX <= obj.x + 30 && mouseY >= obj.y && mouseY <= obj.y + 30
-            );
-            if (existingIndex !== -1) {
-                levelObjects.splice(existingIndex, 1);
-            }
-        }
-    });
-
-    function handleAction() {
-        if (!isPlaying && !isEditor) togglePlay();
-        if (player.onGround) {
-            player.vy = jumpForce;
-            player.onGround = false;
-        }
-    }
-
-    function runAI() {
-        if (!isAI || isEditor) return;
-        let needJump = false;
-        for (let obj of levelObjects) {
-            if (obj.type === "spike") {
-                if (obj.x > player.x && obj.x - player.x < 85 && player.onGround) {
-                    needJump = true;
-                }
-            }
-        }
-        if (needJump && player.onGround) {
-            player.vy = jumpForce;
-            player.onGround = false;
-        }
-    }
-
-    function update() {
-        if (isPlaying && !isEditor) {
-            runAI();
-
-            player.vy += gravity;
-            player.y += player.vy;
-
-            if (player.y >= groundY - player.size) {
-                player.y = groundY - player.size;
-                player.vy = 0;
-                player.onGround = true;
-            }
-
-            cameraX += gameSpeed;
-
-            for (let obj of levelObjects) {
-                if (Math.abs(player.x - obj.x) < 25 && Math.abs(player.y - obj.y) < 25) {
-                    if (obj.type === "spike") {
-                        resetLevel();
-                    } else if (obj.type === "orb") {
-                        player.vy = jumpForce * 1.1;
-                    } else if (obj.type === "pad") {
-                        player.vy = jumpForce * 1.3;
+    <title>Geometry Dash Level Builder & Smart AI 2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        neonCyan: '#00f3ff',
+                        neonPink: '#ff007f',
+                        neonPurple: '#9d00ff',
+                        neonYellow: '#ffe600',
+                        neonGreen: '#00ff66',
                     }
                 }
             }
         }
-    }
+    </script>
+    <style>
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        canvas {
+            image-rendering: pixelated;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.8);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 243, 255, 0.4);
+            border-radius: 4px;
+        }
+        .tool-active {
+            border-color: #00f3ff !important;
+            background-color: rgba(0, 243, 255, 0.25) !important;
+            color: #00f3ff !important;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans overflow-x-hidden select-none">
 
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    <header class="border-b border-cyan-900/40 bg-slate-900/90 backdrop-blur-md px-4 py-2.5 flex flex-wrap justify-between items-center z-20 gap-2">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-400 via-fuchsia-500 to-yellow-400 flex items-center justify-center font-black text-xl shadow-lg shadow-cyan-500/20 text-slate-950">
+                GD
+            </div>
+            <div>
+                <h1 class="text-lg font-black italic tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-yellow-300">
+                    GD SMART BUILDER & AI 2.0
+                </h1>
+                <p class="text-[11px] text-slate-400 font-mono" id="subHeaderDesc">Умный спавн • Предиктивный ИИ • Поворот • RU/EN</p>
+            </div>
+        </div>
 
-        ctx.save();
-        ctx.translate(-cameraX, 0);
+        <div class="flex items-center gap-2 bg-slate-950/80 p-1 rounded-xl border border-slate-800">
+            <button id="modeEditorBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-cyan-500 text-slate-950 shadow-md">
+                🛠️ <span data-ru="Редактор" data-en="Editor">Редактор</span>
+            </button>
+            <button id="modePlayBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white">
+                🎮 <span data-ru="Играть" data-en="Play">Играть</span>
+            </button>
+            <button id="modeAIBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white">
+                🧠 <span data-ru="Умный ИИ 2.0" data-en="Smart AI 2.0">Умный ИИ 2.0</span>
+            </button>
+        </div>
 
-        if (isEditor) {
-            ctx.strokeStyle = "rgba(255,255,255,0.05)";
+        <div class="flex items-center gap-2">
+            <button id="btnLangToggle" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-cyan-300 transition">
+                🌐 RU / EN
+            </button>
+            <button id="btnSoundToggle" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300 transition">
+                🔊 <span data-ru="Звук: Вкл" data-en="Sound: On">Звук: Вкл</span>
+            </button>
+            <button id="btnExportLevel" class="px-3 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800/50 border border-purple-500/40 text-xs font-bold text-purple-200 transition">
+                💾 <span data-ru="Сохранить" data-en="Save">Сохранить</span>
+            </button>
+            <label class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300 cursor-pointer transition">
+                📂 <span data-ru="Загрузить JSON" data-en="Load JSON">Загрузить JSON</span>
+                <input type="file" id="btnImportLevel" accept=".json" class="hidden">
+            </label>
+        </div>
+    </header>
+
+    <main class="flex-1 p-3 md:p-4 flex flex-col gap-3 max-w-7xl mx-auto w-full">
+
+        <div class="bg-slate-900/80 rounded-xl p-3 border border-cyan-900/30 flex justify-between items-center text-xs font-mono">
+            <div class="flex items-center gap-4">
+                <span class="text-cyan-400 font-bold"><span id="hudModeLabel">РЕЖИМ</span>: <span id="hudModeText" class="text-white">РЕДАКТОР</span></span>
+                <span class="text-fuchsia-400 font-bold"><span id="hudAttemptLabel">ПОПЫТКА</span>: <span id="hudAttemptText" class="text-white">#1</span></span>
+            </div>
+            <div class="flex items-center gap-3 w-1/2 max-w-xs">
+                <span class="text-yellow-400 font-bold text-nowrap"><span id="hudProgressLabel">ПРОГРЕСС</span>: <span id="hudPercentText" class="text-white">0%</span></span>
+                <div class="w-full h-2.5 bg-slate-950 rounded-full border border-slate-800 overflow-hidden">
+                    <div id="hudProgressBar" class="h-full bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-yellow-400 w-0 transition-all duration-75"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative w-full aspect-[21/9] min-h-[340px] bg-slate-950 rounded-2xl border-2 border-cyan-500/30 overflow-hidden shadow-2xl">
+            <canvas id="gameCanvas" class="w-full h-full block cursor-pointer"></canvas>
+
+            <div id="editorScrollControls" class="absolute top-3 left-3 right-3 flex justify-between items-center pointer-events-none">
+                <div class="bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700 text-xs font-mono text-cyan-300 pointer-events-auto flex items-center gap-2 shadow-lg">
+                    <span id="camLabel">Камера:</span>
+                    <button id="btnScrollLeft" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-white font-bold transition">◀</button>
+                    <span id="scrollPosText" class="w-14 text-center font-bold">0px</span>
+                    <button id="btnScrollRight" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-white font-bold transition">▶</button>
+                </div>
+                <div class="bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700 text-xs font-mono text-slate-300 shadow-lg" id="editorHintText">
+                    💡 ЛКМ — поставить, ПКМ — удалить конкретный объект!
+                </div>
+            </div>
+
+            <div id="playControlsOverlay" class="hidden absolute top-3 right-3 flex items-center gap-2">
+                <button id="btnPlayRestart" class="px-4 py-2 bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/20 transition active:scale-95">
+                    🔄 <span data-ru="Старт / Рестарт" data-en="Start / Restart">Старт / Рестарт</span>
+                </button>
+            </div>
+
+            <div id="winModal" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center gap-4 z-30 animate-fade-in">
+                <div class="text-4xl md:text-6xl font-black italic text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-fuchsia-400 to-cyan-400 animate-bounce" id="winTitleText">
+                    🎉 ТЫ ПОБЕДИЛ!
+                </div>
+                <p class="text-slate-300 font-mono text-sm" id="winSubText">Уровень прошел идеальный расчет!</p>
+                <button id="btnWinRestart" class="px-6 py-2.5 bg-gradient-to-r from-cyan-400 to-fuchsia-500 hover:from-cyan-300 hover:to-fuchsia-400 text-slate-950 font-black rounded-xl text-sm uppercase tracking-wider shadow-xl transition active:scale-95">
+                    <span data-ru="Заново" data-en="Restart">Заново</span> 🔄
+                </button>
+            </div>
+        </div>
+
+        <div id="aiLogContainer" class="hidden bg-slate-900/90 rounded-xl p-3 border border-fuchsia-500/40 flex flex-col gap-1.5 shadow-xl">
+            <div class="flex justify-between items-center text-xs font-mono text-fuchsia-400 font-bold">
+                <span class="flex items-center gap-2">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-fuchsia-500 animate-ping"></span>
+                    <span id="aiLogTitle">🤖 МЫСЛИ УМНОГО ИИ (TRAJECTORY PREDICTION ENGINE):</span>
+                </span>
+                <span id="aiStatusBadge" class="text-cyan-400">Считывание профиля препятствий...</span>
+            </div>
+            <div id="aiThoughtLog" class="h-16 bg-slate-950/95 rounded-lg p-2.5 font-mono text-[11px] text-slate-300 overflow-y-auto custom-scrollbar flex flex-col gap-1">
+                <div class="text-cyan-400">[ИИ 2.0]: Готов к симуляции перелетов шипов и колонн!</div>
+            </div>
+        </div>
+
+        <div id="bottomEditorBar" class="bg-slate-900/95 border border-cyan-500/40 rounded-2xl p-3 shadow-2xl flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 w-full md:w-auto">
+                <span class="text-xs font-mono font-bold text-cyan-400 mr-1 uppercase shrink-0" id="toolLabelText">Инструмент:</span>
+                
+                <button data-tool="SPIKE" class="tool-btn tool-active px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 transition shrink-0">
+                    <span class="text-base">🔺</span> <span data-ru="Шип" data-en="Spike">Шип</span>
+                </button>
+
+                <button data-tool="BLOCK" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition shrink-0">
+                    <span class="text-base">⬛</span> <span data-ru="Блок" data-en="Block">Блок</span>
+                </button>
+
+                <button data-tool="PAD" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-yellow-400 hover:bg-slate-700 transition shrink-0">
+                    <span class="text-base">🟨</span> <span data-ru="Батут" data-en="Jump Pad">Батут</span>
+                </button>
+
+                <button data-tool="ORB" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-yellow-300 hover:bg-slate-700 transition shrink-0">
+                    <span class="text-base">🟡</span> <span data-ru="Орб" data-en="Jump Orb">Орб</span>
+                </button>
+
+                <button data-tool="GOAL" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-emerald-400 hover:bg-slate-700 transition shrink-0">
+                    <span class="text-base">🏁</span> <span data-ru="Финиш" data-en="Goal">Финиш</span>
+                </button>
+
+                <button data-tool="ERASER" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-red-400 hover:bg-slate-700 transition shrink-0">
+                    <span class="text-base">❌</span> <span data-ru="Ластик" data-en="Eraser">Ластик</span>
+                </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button id="btnRotateObject" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-cyan-500/40 text-cyan-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-lg">
+                    🔄 <span id="rotLabelText">Поворот</span>: <span id="rotValText">0°</span>
+                </button>
+
+                <button id="btnClearAll" class="px-3.5 py-2 bg-red-950/60 hover:bg-red-900 border border-red-700/60 text-red-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-lg">
+                    🗑️ <span data-ru="Очистить карту" data-en="Clear All">Очистить карту</span>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        let currentLang = 'ru';
+        function toggleLanguage() {
+            currentLang = currentLang === 'ru' ? 'en' : 'ru';
+            document.querySelectorAll('[data-ru]').forEach(el => {
+                const text = el.getAttribute(`data-${currentLang}`);
+                if (text) el.innerText = text;
+            });
+            document.getElementById('camLabel').innerText = currentLang === 'ru' ? 'Камера:' : 'Camera:';
+            document.getElementById('toolLabelText').innerText = currentLang === 'ru' ? 'Инструмент:' : 'Tool:';
+            document.getElementById('rotLabelText').innerText = currentLang === 'ru' ? 'Поворот' : 'Rotate';
+            document.getElementById('editorHintText').innerHTML = currentLang === 'ru' 
+                ? '💡 ЛКМ — поставить, ПКМ — удалить конкретный объект!' 
+                : '💡 LMB — place, RMB — remove specific object!';
+        }
+        document.getElementById('btnLangToggle').addEventListener('click', toggleLanguage);
+
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+            playTone(freq, duration, type = 'sine', gainVal = 0.1) {
+                if (!this.enabled || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e){}
+            }
+            playJump() { this.playTone(420, 0.15, 'square', 0.08); }
+            playPad() { this.playTone(650, 0.25, 'triangle', 0.12); }
+            playOrb() { this.playTone(850, 0.2, 'sine', 0.1); }
+            playExplode() { this.playTone(110, 0.35, 'sawtooth', 0.15); }
+            playWin() {
+                if (!this.enabled || !this.ctx) return;
+                [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => {
+                    setTimeout(() => this.playTone(f, 0.3, 'sine', 0.1), i * 110);
+                });
+            }
+        }
+
+        const sound = new SoundFX();
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const GRID_SIZE = 40;
+        const GRAVITY = 0.65;
+        const JUMP_FORCE = -12.5;
+        const PAD_FORCE = -16.5;
+        const ORB_FORCE = -12.0;
+        const GAME_SPEED = 6.5;
+
+        let currentMode = 'EDITOR'; 
+        let isRunning = false;
+        let attemptCount = 1;
+        let editorCameraX = 0;
+        let activeTool = 'SPIKE';
+        let currentRotation = 0;
+        let isJumpHeld = false;
+
+        const player = {
+            x: 0,
+            y: 0,
+            vx: GAME_SPEED,
+            vy: 0,
+            size: 34,
+            rotation: 0,
+            isGrounded: false,
+            trail: []
+        };
+
+        let levelObjects = [];
+        let particles = [];
+        let aiPredictedTrajectory = [];
+
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function getGroundY() {
+            return canvas.height - 80;
+        }
+
+        function resetPlayer() {
+            const gy = getGroundY();
+            let highestBlockY = gy;
+            
+            levelObjects.forEach(obj => {
+                if (obj.type === 'BLOCK' && obj.x === 0) {
+                    const blockTop = gy - obj.y - (obj.h || 40);
+                    if (blockTop < highestBlockY) {
+                        highestBlockY = blockTop;
+                    }
+                }
+            });
+
+            player.x = (GRID_SIZE - player.size) / 2;
+            player.y = highestBlockY - player.size;
+            player.vx = GAME_SPEED;
+            player.vy = 0;
+            player.rotation = 0;
+            player.isGrounded = true;
+            player.trail = [];
+            levelObjects.forEach(o => o.used = false);
+            document.getElementById('winModal').classList.add('hidden');
+        }
+
+        function simulateTrajectory(startX, startY, startVy, shouldJumpOnStart, activateOrbOnStart = false) {
+            const gy = getGroundY();
+            let simX = startX;
+            let simY = startY;
+            let simVy = startVy;
+            let isGrounded = false;
+            let trajectoryPoints = [];
+
+            if (shouldJumpOnStart) {
+                simVy = JUMP_FORCE;
+            } else if (activateOrbOnStart) {
+                simVy = ORB_FORCE;
+            }
+
+            for (let step = 0; step < 80; step++) {
+                simX += GAME_SPEED;
+                simVy += GRAVITY;
+                simY += simVy;
+
+                if (simY >= gy - player.size) {
+                    simY = gy - player.size;
+                    simVy = 0;
+                    isGrounded = true;
+                }
+
+                trajectoryPoints.push({ x: simX, y: simY });
+
+                for (let obj of levelObjects) {
+                    const oy = gy - obj.y - (obj.h || 40);
+                    const ps = player.size;
+
+                    if (obj.type === 'SPIKE') {
+                        if (simX + ps - 8 > obj.x && simX + 8 < obj.x + 40 && simY + ps > oy && simY + 8 < oy + 40) {
+                            return { safe: false, crashReason: 'SPIKE', points: trajectoryPoints };
+                        }
+                    } else if (obj.type === 'BLOCK') {
+                        const bw = obj.w || 40;
+                        const bh = obj.h || 40;
+                        if (simX + ps > obj.x && simX < obj.x + bw && simY + ps > oy && simY < oy + bh) {
+                            if (simY + ps - simVy <= oy + 12) {
+                                simY = oy - ps;
+                                simVy = 0;
+                                isGrounded = true;
+                            } else {
+                                return { safe: false, crashReason: 'BLOCK_SIDE', points: trajectoryPoints };
+                            }
+                        }
+                    }
+                }
+                if (isGrounded && step > 10) break;
+            }
+            return { safe: true, points: trajectoryPoints };
+        }
+
+        function updateSmartAILogic() {
+            if (currentMode !== 'AI' || !isRunning) return;
+            const gy = getGroundY();
+            aiPredictedTrajectory = [];
+
+            const noJumpSim = simulateTrajectory(player.x, player.y, player.vy, false);
+            if (!noJumpSim.safe) {
+                if (player.isGrounded) {
+                    const jumpSim = simulateTrajectory(player.x, player.y, player.vy, true);
+                    if (jumpSim.safe) {
+                        aiPredictedTrajectory = jumpSim.points;
+                        executeJump(`Точный прыжок высчитан!`);
+                        return;
+                    }
+                }
+            }
+
+            if (!player.isGrounded) {
+                levelObjects.forEach(obj => {
+                    if (obj.type === 'ORB' && !obj.used) {
+                        const oy = gy - obj.y - 40;
+                        const dist = Math.hypot((player.x + player.size/2) - (obj.x + 20), (player.y + player.size/2) - (oy + 20));
+                        if (dist < 55) {
+                            const orbSim = simulateTrajectory(player.x, player.y, player.vy, false, true);
+                            if (orbSim.safe) {
+                                aiPredictedTrajectory = orbSim.points;
+                                executeJump('Орб активирован!');
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function executeJump(source = '') {
+            sound.init();
+            if (player.isGrounded) {
+                player.vy = JUMP_FORCE;
+                player.isGrounded = false;
+                sound.playJump();
+                createParticles(player.x, player.y + player.size, '#00f3ff', 6);
+                if (source && currentMode === 'AI') logAI(source);
+            } else {
+                levelObjects.forEach(obj => {
+                    if (obj.type === 'ORB' && !obj.used) {
+                        const gy = getGroundY();
+                        const oy = gy - obj.y - 40;
+                        const dist = Math.hypot((player.x + player.size/2) - (obj.x + 20), (player.y + player.size/2) - (oy + 20));
+                        if (dist < 55) {
+                            player.vy = ORB_FORCE;
+                            obj.used = true;
+                            sound.playOrb();
+                            createParticles(obj.x + 20, oy + 20, '#ffe600', 12);
+                            if (source && currentMode === 'AI') logAI(source);
+                        }
+                    }
+                });
+            }
+        }
+
+        function handleHeldInput() {
+            if (currentMode === 'PLAY' && isRunning && isJumpHeld) {
+                executeJump('Зажатие');
+            }
+        }
+
+        function logAI(msg) {
+            const el = document.getElementById('aiThoughtLog');
+            const time = new Date().toLocaleTimeString().split(' ')[0];
+            el.innerHTML = `<div class="text-cyan-300"><span class="text-slate-500">[${time}]</span> ${msg}</div>` + el.innerHTML;
+        }
+
+        function updatePhysics() {
+            if (!isRunning || currentMode === 'EDITOR') return;
+
+            updateSmartAILogic();
+            handleHeldInput();
+
+            player.x += player.vx;
+            player.vy += GRAVITY;
+            player.y += player.vy;
+
+            const gy = getGroundY();
+
+            if (player.y >= gy - player.size) {
+                player.y = gy - player.size;
+                player.vy = 0;
+                player.isGrounded = true;
+            } else {
+                player.isGrounded = false;
+            }
+
+            if (!player.isGrounded) {
+                player.rotation += 8.5;
+            } else {
+                player.rotation = Math.round(player.rotation / 90) * 90;
+            }
+
+            if (Math.random() < 0.6) {
+                player.trail.push({ x: player.x + player.size/2, y: player.y + player.size/2, alpha: 0.6 });
+            }
+            player.trail.forEach(t => t.alpha -= 0.04);
+            player.trail = player.trail.filter(t => t.alpha > 0);
+
+            const px = player.x;
+            const py = player.y;
+            const ps = player.size;
+
+            let finishGate = levelObjects.find(o => o.type === 'GOAL');
+            let maxLevelX = finishGate ? finishGate.x : Math.max(...levelObjects.map(o => o.x), 1500);
+
+            levelObjects.forEach(obj => {
+                const oy = gy - obj.y - (obj.h || 40);
+
+                if (obj.type === 'BLOCK') {
+                    const bw = obj.w || 40;
+                    const bh = obj.h || 40;
+                    if (px + ps > obj.x && px < obj.x + bw && py + ps > oy && py < oy + bh) {
+                        if (py + ps - player.vy <= oy + 12) {
+                            player.y = oy - ps;
+                            player.vy = 0;
+                            player.isGrounded = true;
+                        } else {
+                            handleDeath('Столкновение с боком блока');
+                        }
+                    }
+                } else if (obj.type === 'SPIKE') {
+                    if (px + ps - 8 > obj.x && px + 8 < obj.x + 40 && py + ps > oy && py + 8 < oy + 40) {
+                        handleDeath('Касание шипа');
+                    }
+                } else if (obj.type === 'PAD') {
+                    if (px + ps > obj.x && px < obj.x + 40 && py + ps >= oy - 5 && py < oy + 20) {
+                        player.vy = PAD_FORCE;
+                        player.isGrounded = false;
+                        sound.playPad();
+                        createParticles(obj.x + 20, oy, '#ffe600', 10);
+                    }
+                } else if (obj.type === 'GOAL') {
+                    const goalHeight = obj.h || 40;
+                    const goalY = gy - obj.y - goalHeight;
+                    if (px + ps >= obj.x && px <= obj.x + (obj.w || 40) && py + ps >= goalY && py <= gy - obj.y) {
+                        handleWin();
+                    }
+                }
+            });
+
+            const progress = Math.min(100, Math.max(0, Math.floor((player.x / maxLevelX) * 100)));
+            document.getElementById('hudProgressBar').style.width = `${progress}%`;
+            document.getElementById('hudPercentText').innerText = `${progress}%`;
+
+            particles.forEach(p => { p.x += p.vx; p.y += p.vy; p.alpha -= 0.025; });
+            particles = particles.filter(p => p.alpha > 0);
+        }
+
+        function handleDeath(reason) {
+            sound.playExplode();
+            createParticles(player.x + player.size/2, player.y + player.size/2, '#ff007f', 22);
+            attemptCount++;
+            document.getElementById('hudAttemptText').innerText = `#${attemptCount}`;
+            if (currentMode === 'AI') logAI(`💥 Пересчёт траектории: ${reason}`);
+            resetPlayer();
+        }
+
+        function handleWin() {
+            isRunning = false;
+            sound.playWin();
+            document.getElementById('hudProgressBar').style.width = `100%`;
+            document.getElementById('hudPercentText').innerText = `100%`;
+            document.getElementById('winModal').classList.remove('hidden');
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const gy = getGroundY();
+            const cameraX = (currentMode === 'EDITOR') ? editorCameraX : (player.x - 150);
+
+            ctx.save();
+            ctx.strokeStyle = 'rgba(0, 243, 255, 0.12)';
             ctx.lineWidth = 1;
-            for (let x = 0; x < cameraX + canvas.width; x += 30) {
+            const gridOffset = -(cameraX) % 40;
+            for (let x = gridOffset; x < canvas.width; x += 40) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for (let y = canvas.height; y > 0; y -= 40) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(-cameraX, 0);
+
+            if (currentMode === 'EDITOR') {
+                let highestBlockY = gy;
+                levelObjects.forEach(obj => {
+                    if (obj.type === 'BLOCK' && obj.x === 0) {
+                        const blockTop = gy - obj.y - (obj.h || 40);
+                        if (blockTop < highestBlockY) highestBlockY = blockTop;
+                    }
+                });
+
+                const startCubeX = (GRID_SIZE - 34) / 2;
+                const startCubeY = highestBlockY - 34;
+
+                ctx.save();
+                ctx.fillStyle = 'rgba(0, 255, 102, 0.2)';
+                ctx.fillRect(0, highestBlockY - GRID_SIZE, GRID_SIZE, GRID_SIZE);
+                ctx.strokeStyle = '#00ff66';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                ctx.strokeRect(0, highestBlockY - GRID_SIZE, GRID_SIZE, GRID_SIZE);
+
+                ctx.fillStyle = 'rgba(0, 243, 255, 0.4)';
+                ctx.fillRect(startCubeX, startCubeY, 34, 34);
+                ctx.strokeStyle = '#00f3ff';
+                ctx.setLineDash([]);
+                ctx.strokeRect(startCubeX, startCubeY, 34, 34);
+
+                ctx.font = 'bold 10px JetBrains Mono';
+                ctx.fillStyle = '#00ff66';
+                ctx.fillText('СТАРТ', 2, highestBlockY - GRID_SIZE - 6);
+                ctx.restore();
+            }
+
+            if (currentMode === 'AI' && aiPredictedTrajectory.length > 0) {
+                ctx.save();
                 ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, groundY);
+                ctx.strokeStyle = 'rgba(255, 0, 127, 0.7)';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([6, 6]);
+                aiPredictedTrajectory.forEach((pt, i) => {
+                    if (i === 0) ctx.moveTo(pt.x + 17, pt.y + 17);
+                    else ctx.lineTo(pt.x + 17, pt.y + 17);
+                });
                 ctx.stroke();
+                ctx.restore();
+            }
+
+            levelObjects.forEach(obj => {
+                const oy = gy - obj.y - (obj.h || 40);
+                ctx.save();
+                ctx.translate(obj.x + 20, oy + 20);
+                ctx.rotate((obj.rotation || 0) * Math.PI / 180);
+
+                if (obj.type === 'BLOCK') {
+                    ctx.fillStyle = '#0f172a';
+                    ctx.fillRect(-20, -20, 40, 40);
+                    ctx.strokeStyle = '#00f3ff';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(-19, -19, 38, 38);
+                } else if (obj.type === 'SPIKE') {
+                    ctx.beginPath();
+                    ctx.moveTo(-20, 20);
+                    ctx.lineTo(0, -20);
+                    ctx.lineTo(20, 20);
+                    ctx.closePath();
+                    ctx.fillStyle = '#ff007f';
+                    ctx.fill();
+                    ctx.strokeStyle = '#fff';
+                    ctx.stroke();
+                } else if (obj.type === 'PAD') {
+                    ctx.fillStyle = '#ffe600';
+                    ctx.fillRect(-20, 8, 40, 12);
+                    ctx.strokeStyle = '#fff';
+                    ctx.strokeRect(-20, 8, 40, 12);
+                } else if (obj.type === 'ORB') {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 14, 0, Math.PI * 2);
+                    ctx.fillStyle = obj.used ? '#475569' : '#ffe600';
+                    ctx.fill();
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                } else if (obj.type === 'GOAL') {
+                    ctx.fillStyle = 'rgba(0, 255, 102, 0.25)';
+                    ctx.fillRect(-20, -20, 40, 40);
+                    ctx.strokeStyle = '#00ff66';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(-20, -20, 40, 40);
+                    ctx.font = '22px sans-serif';
+                    ctx.fillText('🏁', -12, 8);
+                }
+                ctx.restore();
+            });
+
+            if (currentMode !== 'EDITOR') {
+                player.trail.forEach(t => {
+                    ctx.fillStyle = `rgba(0, 243, 255, ${t.alpha})`;
+                    ctx.fillRect(t.x - 12, t.y - 12, 24, 24);
+                });
+
+                ctx.save();
+                ctx.translate(player.x + player.size/2, player.y + player.size/2);
+                ctx.rotate((player.rotation * Math.PI) / 180);
+                ctx.fillStyle = '#00f3ff';
+                ctx.fillRect(-player.size/2, -player.size/2, player.size, player.size);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2.5;
+                ctx.strokeRect(-player.size/2, -player.size/2, player.size, player.size);
+                ctx.restore();
+            }
+
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size || 4, p.size || 4);
+            });
+
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(cameraX - 100, gy, canvas.width + 200, 80);
+            ctx.strokeStyle = '#00f3ff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(cameraX - 100, gy);
+            ctx.lineTo(cameraX + canvas.width + 100, gy);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function createParticles(x, y, color, count = 8) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    color: color, alpha: 1
+                });
             }
         }
 
-        ctx.fillStyle = "#16162c";
-        ctx.fillRect(cameraX, groundY, canvas.width, canvas.height - groundY);
-        ctx.fillStyle = "#ff8c00";
-        ctx.fillRect(cameraX, groundY, canvas.width, 4);
+        function loop() {
+            updatePhysics();
+            render();
+            requestAnimationFrame(loop);
+        }
 
-        for (let obj of levelObjects) {
-            if (obj.type === "block") {
-                ctx.fillStyle = "#4a4ae2";
-                ctx.fillRect(obj.x, obj.y, 30, 30);
-                ctx.strokeStyle = "#fff";
-                ctx.strokeRect(obj.x, obj.y, 30, 30);
-            } else if (obj.type === "spike") {
-                ctx.fillStyle = "#ff3333";
-                ctx.beginPath();
-                ctx.moveTo(obj.x + 15, obj.y);
-                ctx.lineTo(obj.x + 30, obj.y + 30);
-                ctx.lineTo(obj.x, obj.y + 30);
-                ctx.closePath();
-                ctx.fill();
-            } else if (obj.type === "orb") {
-                ctx.fillStyle = "#ff00ff";
-                ctx.beginPath();
-                ctx.arc(obj.x + 15, obj.y + 15, 12, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = "#fff";
-                ctx.stroke();
-            } else if (obj.type === "pad") {
-                ctx.fillStyle = "#ffff00";
-                ctx.fillRect(obj.x, obj.y + 20, 30, 10);
+        // Левый клик — поставить объект
+        canvas.addEventListener('mousedown', (e) => {
+            sound.init();
+            if (currentMode === 'EDITOR' && e.button === 0) {
+                const rect = canvas.getBoundingClientRect();
+                const clickX = e.clientX - rect.left + editorCameraX;
+                const clickY = getGroundY() - (e.clientY - rect.top);
+
+                const snapX = Math.floor(clickX / GRID_SIZE) * GRID_SIZE;
+                const snapY = Math.floor(clickY / GRID_SIZE) * GRID_SIZE;
+
+                if (activeTool === 'ERASER') {
+                    levelObjects = levelObjects.filter(o => {
+                        const objH = o.h || 40;
+                        const objW = o.w || 40;
+                        return !(clickX >= o.x && clickX <= o.x + objW && clickY >= o.y && clickY <= o.y + objH);
+                    });
+                } else if (snapX >= 0 && snapY >= 0) {
+                    levelObjects = levelObjects.filter(o => !(o.x === snapX && o.y === snapY));
+                    if (activeTool === 'GOAL') {
+                        levelObjects = levelObjects.filter(o => o.type !== 'GOAL');
+                        levelObjects.push({ type: 'GOAL', x: snapX, y: snapY, w: 40, h: 40, rotation: currentRotation });
+                    } else {
+                        levelObjects.push({ type: activeTool, x: snapX, y: snapY, w: 40, h: 40, rotation: currentRotation });
+                    }
+                }
+            } else if (currentMode === 'PLAY') {
+                isJumpHeld = true;
+                executeJump('Клик мыши');
+            }
+        });
+
+        // Правый клик — удалить конкретный объект под курсором
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (currentMode === 'EDITOR') {
+                const rect = canvas.getBoundingClientRect();
+                const clickX = e.clientX - rect.left + editorCameraX;
+                const clickY = getGroundY() - (e.clientY - rect.top);
+
+                const existingIndex = levelObjects.findIndex(o => {
+                    const objH = o.h || 40;
+                    const objW = o.w || 40;
+                    return clickX >= o.x && clickX <= o.x + objW && clickY >= o.y && clickY <= o.y + objH;
+                });
+                if (existingIndex !== -1) {
+                    levelObjects.splice(existingIndex, 1);
+                }
+            }
+        });
+
+        window.addEventListener('mouseup', () => { isJumpHeld = false; });
+
+        window.addEventListener('keydown', (e) => {
+            if ((e.code === 'Space' || e.code === 'ArrowUp') && currentMode === 'PLAY') {
+                if (!isJumpHeld) executeJump('Пробел');
+                isJumpHeld = true;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowUp') isJumpHeld = false;
+        });
+
+        function setMode(mode) {
+            currentMode = mode;
+            isRunning = false;
+            isJumpHeld = false;
+
+            const modeEditorBtn = document.getElementById('modeEditorBtn');
+            const modePlayBtn = document.getElementById('modePlayBtn');
+            const modeAIBtn = document.getElementById('modeAIBtn');
+            const editorControls = document.getElementById('editorScrollControls');
+            const bottomBar = document.getElementById('bottomEditorBar');
+            const playControls = document.getElementById('playControlsOverlay');
+            const aiLogs = document.getElementById('aiLogContainer');
+            const hudText = document.getElementById('hudModeText');
+
+            [modeEditorBtn, modePlayBtn, modeAIBtn].forEach(b => {
+                b.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white';
+            });
+
+            if (mode === 'EDITOR') {
+                modeEditorBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-cyan-500 text-slate-950 shadow-md';
+                editorControls.classList.remove('hidden');
+                bottomBar.classList.remove('hidden');
+                playControls.classList.add('hidden');
+                aiLogs.classList.add('hidden');
+                hudText.innerText = currentLang === 'ru' ? 'РЕДАКТОР' : 'EDITOR';
+                document.getElementById('winModal').classList.add('hidden');
+            } else if (mode === 'PLAY') {
+                modePlayBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-cyan-500 text-slate-950 shadow-md';
+                editorControls.classList.add('hidden');
+                bottomBar.classList.add('hidden');
+                playControls.classList.remove('hidden');
+                aiLogs.classList.add('hidden');
+                hudText.innerText = currentLang === 'ru' ? 'ИГРА' : 'PLAY';
+                resetPlayer();
+            } else if (mode === 'AI') {
+                modeAIBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-cyan-500 text-slate-950 shadow-md';
+                editorControls.classList.add('hidden');
+                bottomBar.classList.add('hidden');
+                playControls.classList.remove('hidden');
+                aiLogs.classList.remove('hidden');
+                hudText.innerText = 'SMART AI 2.0';
+                resetPlayer();
             }
         }
 
-        ctx.fillStyle = "#00ffcc";
-        ctx.fillRect(player.x, player.y, player.size, player.size);
-        ctx.strokeStyle = "#000";
-        ctx.strokeRect(player.x, player.y, player.size, player.size);
+        document.getElementById('modeEditorBtn').addEventListener('click', () => setMode('EDITOR'));
+        document.getElementById('modePlayBtn').addEventListener('click', () => setMode('PLAY'));
+        document.getElementById('modeAIBtn').addEventListener('click', () => setMode('AI'));
 
-        ctx.restore();
-    }
+        document.getElementById('btnPlayRestart').addEventListener('click', () => {
+            resetPlayer();
+            isRunning = true;
+            sound.init();
+        });
 
-    function loop() {
-        update();
-        draw();
+        document.getElementById('btnWinRestart').addEventListener('click', () => {
+            resetPlayer();
+            isRunning = true;
+            sound.init();
+        });
+
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('tool-active'));
+                btn.classList.add('tool-active');
+                activeTool = btn.dataset.tool;
+            });
+        });
+
+        document.getElementById('btnRotateObject').addEventListener('click', () => {
+            currentRotation = (currentRotation + 90) % 360;
+            document.getElementById('rotValText').innerText = currentRotation + '°';
+        });
+
+        document.getElementById('btnClearAll').addEventListener('click', () => {
+            levelObjects = [];
+            document.getElementById('hudProgressBar').style.width = '0%';
+            document.getElementById('hudPercentText').innerText = '0%';
+        });
+
+        document.getElementById('btnScrollLeft').addEventListener('click', () => {
+            editorCameraX = Math.max(0, editorCameraX - 200);
+            document.getElementById('scrollPosText').innerText = `${editorCameraX}px`;
+        });
+        document.getElementById('btnScrollRight').addEventListener('click', () => {
+            editorCameraX += 200;
+            document.getElementById('scrollPosText').innerText = `${editorCameraX}px`;
+        });
+
+        document.getElementById('btnSoundToggle').addEventListener('click', () => {
+            sound.enabled = !sound.enabled;
+            document.getElementById('btnSoundToggle').innerHTML = sound.enabled 
+                ? (currentLang === 'ru' ? '🔊 Звук: Вкл' : '🔊 Sound: On') 
+                : (currentLang === 'ru' ? '🔇 Звук: Выкл' : '🔇 Sound: Off');
+        });
+
+        document.getElementById('btnExportLevel').addEventListener('click', () => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(levelObjects, null, 2));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", "my_gd_level.json");
+            dl.click();
+            dl.remove();
+        });
+
+        document.getElementById('btnImportLevel').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    levelObjects = JSON.parse(event.target.result);
+                    resetPlayer();
+                    alert(currentLang === 'ru' ? 'Уровень успешно загружен!' : 'Level loaded successfully!');
+                } catch (err) {
+                    alert(currentLang === 'ru' ? 'Ошибка загрузки JSON-файла!' : 'Error loading JSON file!');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        setMode('EDITOR');
         requestAnimationFrame(loop);
-    }
-
-    loop();
-</script>
-
+    </script>
 </body>
 </html>
