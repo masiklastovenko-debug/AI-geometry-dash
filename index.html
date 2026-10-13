@@ -63,9 +63,9 @@
             </div>
             <div>
                 <h1 class="text-lg font-black italic tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-yellow-300">
-                    GD SMART BUILDER & PORTALS ULTIMATE
+                    GD SMART BUILDER & AI AIRPLANE ULTIMATE
                 </h1>
-                <p class="text-[11px] text-slate-400 font-mono" id="subHeaderDesc">Кубик • Самолётик • Точные высоты • Поворот • RU/EN</p>
+                <p class="text-[11px] text-slate-400 font-mono" id="subHeaderDesc">Кубик • Самолётик + ИИ-Автопилот • Поворот • RU/EN</p>
             </div>
         </div>
 
@@ -149,12 +149,12 @@
             <div class="flex justify-between items-center text-xs font-mono text-fuchsia-400 font-bold">
                 <span class="flex items-center gap-2">
                     <span class="inline-block w-2.5 h-2.5 rounded-full bg-fuchsia-500 animate-ping"></span>
-                    <span id="aiLogTitle">🤖 МЫСЛИ УМНОГО ИИ (TRAJECTORY PREDICTION ENGINE):</span>
+                    <span id="aiLogTitle">🤖 МЫСЛИ УМНОГО ИИ (CUBE & AIRPLANE AUTO-PILOT):</span>
                 </span>
-                <span id="aiStatusBadge" class="text-cyan-400">Считывание профиля препятствий...</span>
+                <span id="aiStatusBadge" class="text-cyan-400">Сканирование траектории...</span>
             </div>
             <div id="aiThoughtLog" class="h-16 bg-slate-950/95 rounded-lg p-2.5 font-mono text-[11px] text-slate-300 overflow-y-auto custom-scrollbar flex flex-col gap-1">
-                <div class="text-cyan-400">[ИИ 2.0]: Готов к симуляции перелетов шипов и колонн!</div>
+                <div class="text-cyan-400">[ИИ 2.0]: Автопилот куба и самолётика активирован!</div>
             </div>
         </div>
 
@@ -175,7 +175,7 @@
                 </button>
 
                 <button data-tool="ORB" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-yellow-300 hover:bg-slate-700 transition shrink-0">
-                    <span class="text-base">🟡</span> <span data-ru="Орб" data-en="Jump Orb">Орб</span>
+                    <span class="text-base">🟡</span> <span data-ru="Орб" data-en="Jump Orb">Jump Orb</span>
                 </button>
 
                 <button data-tool="AIRPLANE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-orange-400 hover:bg-slate-700 transition shrink-0">
@@ -339,7 +339,7 @@
             document.getElementById('winModal').classList.add('hidden');
         }
 
-        function simulateTrajectory(startX, startY, startVy, shouldJumpOnStart, activateOrbOnStart = false) {
+        function simulateCubeTrajectory(startX, startY, startVy, shouldJumpOnStart) {
             const gy = getGroundY();
             let simX = startX;
             let simY = startY;
@@ -349,11 +349,9 @@
 
             if (shouldJumpOnStart) {
                 simVy = JUMP_FORCE;
-            } else if (activateOrbOnStart) {
-                simVy = ORB_FORCE;
             }
 
-            for (let step = 0; step < 80; step++) {
+            for (let step = 0; step < 70; step++) {
                 simX += GAME_SPEED;
                 simVy += GRAVITY;
                 simY += simVy;
@@ -372,7 +370,7 @@
 
                     if (obj.type === 'SPIKE') {
                         if (simX + ps - 8 > obj.x && simX + 8 < obj.x + 40 && simY + ps > oy && simY + 8 < oy + 40) {
-                            return { safe: false, crashReason: 'SPIKE', points: trajectoryPoints };
+                            return { safe: false, points: trajectoryPoints };
                         }
                     } else if (obj.type === 'BLOCK') {
                         const bw = obj.w || 40;
@@ -383,7 +381,7 @@
                                 simVy = 0;
                                 isGrounded = true;
                             } else {
-                                return { safe: false, crashReason: 'BLOCK_SIDE', points: trajectoryPoints };
+                                return { safe: false, points: trajectoryPoints };
                             }
                         }
                     }
@@ -393,22 +391,80 @@
             return { safe: true, points: trajectoryPoints };
         }
 
+        function isLaneSafe(lane, futureX) {
+            const gy = getGroundY();
+            const laneHeights = [20, 120, 240];
+            const targetY = gy - player.size - laneHeights[lane];
+            const ps = player.size;
+
+            // Проверяем препятствия впереди самолётика на ближайшие 120 пикселей
+            for (let obj of levelObjects) {
+                const oy = gy - obj.y - (obj.h || 40);
+                const bw = obj.w || 40;
+                const bh = obj.h || 40;
+
+                if (obj.type === 'BLOCK' || obj.type === 'SPIKE') {
+                    if (futureX + ps > obj.x && futureX < obj.x + bw) {
+                        if (targetY + ps > oy && targetY < oy + bh) {
+                            return false; // Полоса занята препятствием!
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
         function updateSmartAILogic() {
             if (currentMode !== 'AI' || !isRunning) return;
             const gy = getGroundY();
             aiPredictedTrajectory = [];
 
-            const noJumpSim = simulateTrajectory(player.x, player.y, player.vy, false);
-            if (!noJumpSim.safe) {
-                if (player.isGrounded) {
-                    const jumpSim = simulateTrajectory(player.x, player.y, player.vy, true);
+            if (player.mode === 'cube') {
+                const noJumpSim = simulateCubeTrajectory(player.x, player.y, player.vy, false);
+                if (!noJumpSim.safe && player.isGrounded) {
+                    const jumpSim = simulateCubeTrajectory(player.x, player.y, player.vy, true);
                     if (jumpSim.safe) {
                         aiPredictedTrajectory = jumpSim.points;
                         executeAction();
-                        return;
+                        logAIThought("Куб: Прыжок через препятствие!");
+                    }
+                }
+            } else if (player.mode === 'airplane') {
+                // ИИ сканирует текущую полосу самолётика
+                let futureX = player.x + 60; // смотрим чуть вперед
+                if (!isLaneSafe(player.airplaneLane, futureX)) {
+                    // Текущая полоса опасна! Ищем свободную полосу вверх или вниз
+                    let safeLaneFound = false;
+                    let candidateLanes = [
+                        (player.airplaneLane + 1) % 3,
+                        (player.airplaneLane + 2) % 3
+                    ];
+
+                    for (let candidate of candidateLanes) {
+                        if (isLaneSafe(candidate, futureX)) {
+                            player.airplaneLane = candidate;
+                            sound.playJump();
+                            createParticles(player.x, player.y, '#ff8c00', 8);
+                            logAIThought(`Самолётик: Опасность! Смена полосы на #${candidate + 1}`);
+                            safeLaneFound = true;
+                            break;
+                        }
+                    }
+                    if (!safeLaneFound) {
+                        logAIThought("Самолётик: Внимание, тупик!");
                     }
                 }
             }
+        }
+
+        function logAIThought(text) {
+            const logBox = document.getElementById('aiThoughtLog');
+            if (!logBox) return;
+            const item = document.createElement('div');
+            item.className = 'text-fuchsia-300';
+            item.innerText = `[ИИ Автопилот]: ${text}`;
+            logBox.appendChild(item);
+            logBox.scrollTop = logBox.scrollHeight;
         }
 
         function executeAction() {
@@ -458,10 +514,6 @@
                     player.rotation = Math.round(player.rotation / 90) * 90;
                 }
             } else if (player.mode === 'airplane') {
-                // Точная подгонка по твоему скриншоту:
-                // Lane 0: опустили на 20px (ровно по центру 1-го блока)
-                // Lane 1: идеальные 120px (ровно по центру 2-го блока)
-                // Lane 2: подняли на 240px (ровно по центру 3-го блока)
                 const laneHeights = [20, 120, 240];
                 let targetY = gy - player.size - laneHeights[player.airplaneLane];
                 
@@ -615,7 +667,6 @@
                 ctx.restore();
             }
 
-            // Опорные линии самолётика
             if (isRunning && player.mode === 'airplane') {
                 ctx.strokeStyle = 'rgba(255, 140, 0, 0.45)';
                 ctx.setLineDash([6, 6]);
