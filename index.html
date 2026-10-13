@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Geometry Dash - Airplane, Rotate & Localization</title>
+    <title>Geometry Dash - Classic Stable</title>
     <style>
         body {
             margin: 0;
-            background-color: #111;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #0f0f1a 100%);
             color: #fff;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -20,46 +20,59 @@
         }
         #game-container {
             text-align: center;
+            background: rgba(20, 20, 35, 0.8);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(74, 74, 226, 0.2);
+            border: 2px solid #2a2a4e;
         }
         canvas {
             background: linear-gradient(to bottom, #1e1e3f, #0f0f1f);
-            border: 4px solid #333;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            border: 3px solid #ff8c00;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.4);
             display: block;
-            margin: 0 auto 10px auto;
+            margin: 0 auto 15px auto;
         }
         .ui-panel {
-            margin-top: 10px;
+            margin-top: 12px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
         }
         button, select {
-            background-color: #222;
+            background: linear-gradient(to bottom, #2a2a4e, #1a1a3e);
             color: #fff;
-            border: 2px solid #555;
-            padding: 8px 16px;
+            border: 2px solid #4a4ae2;
+            padding: 10px 18px;
             font-size: 14px;
-            border-radius: 4px;
+            font-weight: bold;
+            border-radius: 8px;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
         button:hover, select:hover {
-            background-color: #444;
-            border-color: #777;
+            background: linear-gradient(to bottom, #3a3a6e, #2a2a4e);
+            border-color: #ff8c00;
+            box-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+            transform: translateY(-2px);
         }
         button.active {
-            background-color: #ff8c00;
-            border-color: #ffa500;
+            background: linear-gradient(to bottom, #ff8c00, #e07000);
+            border-color: #fff;
             color: #000;
-            font-weight: bold;
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.8);
+        }
+        select {
+            padding: 8px 12px;
         }
         .info {
-            font-size: 12px;
-            color: #aaa;
-            margin-top: 5px;
+            font-size: 13px;
+            color: #b8b8d0;
+            margin-top: 12px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
     </style>
 </head>
@@ -72,97 +85,37 @@
         <button id="btnPlay" onclick="togglePlay()">▶ Играть</button>
         <button id="btnAI" onclick="toggleAI()">🤖 AI: ВКЛ</button>
         <button id="btnEditor" onclick="toggleEditor()">✏️ Редактор: ВЫКЛ</button>
-        <button id="btnLang" onclick="toggleLanguage()">🌐 RU / EN</button>
-        <button onclick="resetLevel()" id="btnReset">🔄 Сбросить</button>
+        <button onclick="resetLevel()">🔄 Сбросить</button>
     </div>
 
     <div class="ui-panel" id="editorTools" style="display: none;">
-        <span id="toolLabelText">Инструмент:</span>
+        <span>Инструмент:</span>
         <select id="toolSelect">
-            <option value="block" data-ru="Блок" data-en="Block">Блок</option>
-            <option value="spike" data-ru="Шип" data-en="Spike">Шип</option>
-            <option value="orb" data-ru="Прыжковая сфера" data-en="Jump Orb">Прыжковая сфера</option>
-            <option value="pad" data-ru="Батут" data-en="Jump Pad">Батут</option>
-            <option value="airplanePortal" data-ru="Портал Самолётика" data-en="Airplane Portal">Портал Самолётика</option>
+            <option value="block">Блок</option>
+            <option value="spike">Шип</option>
+            <option value="orb">Прыжковая сфера</option>
+            <option value="pad">Батут</option>
         </select>
-        <button onclick="rotateToolObject()">🔄 <span id="rotText">Поворот</span>: <span id="rotLabel">0°</span></button>
-        <button onclick="clearLevel()" id="btnClear" style="background-color: #8b0000;">🗑 Очистить</button>
+        <button onclick="clearLevel()" style="background: linear-gradient(to bottom, #8b0000, #500000); border-color: #ff3333;">🗑 Очистить</button>
     </div>
 
-    <div class="info" id="infoText">Пробел / Клик — Прыжок / Смена полосы Самолётика. В редакторе: ЛКМ — поставить, ПКМ — удалить.</div>
+    <div class="info">Пробел / Клик — Прыжок. В редакторе: ЛКМ — поставить, ПКМ — удалить объект.</div>
 </div>
 
 <script>
-    // Словарь локализации
-    let currentLang = "ru"; // "ru" или "en"
-    const langData = {
-        ru: {
-            play: "▶ Играть",
-            pause: "⏸ Пауза",
-            aiOn: "🤖 AI Автопилот: ВКЛ",
-            aiOff: "🤖 AI Автопилот: ВЫКЛ",
-            editorOn: "✏️ Редактор: ВКЛ",
-            editorOff: "✏️ Редактор: ВЫКЛ",
-            reset: "🔄 Сбросить",
-            toolLabel: "Инструмент:",
-            rotBtn: "Поворот",
-            clear: "🗑 Очистить",
-            info: "Пробел / Клик — Прыжок / Смена полосы Самолётика. В редакторе: ЛКМ — поставить / удалить."
-        },
-        en: {
-            play: "▶ Play",
-            pause: "⏸ Pause",
-            aiOn: "🤖 AI Autopilot: ON",
-            aiOff: "🤖 AI Autopilot: OFF",
-            editorOn: "✏️ Editor: ON",
-            editorOff: "✏️ Editor: OFF",
-            reset: "🔄 Reset",
-            toolLabel: "Tool:",
-            rotBtn: "Rotate",
-            clear: "🗑 Clear",
-            info: "Space / Click — Jump / Airplane Lane Switch. In Editor: LMB — place / remove."
-        }
-    };
-
-    function toggleLanguage() {
-        currentLang = currentLang === "ru" ? "en" : "ru";
-        updateTexts();
-    }
-
-    function updateTexts() {
-        const l = langData[currentLang];
-        document.getElementById("btnPlay").innerText = isPlaying ? l.pause : l.play;
-        document.getElementById("btnAI").innerText = isAI ? l.aiOn : l.aiOff;
-        document.getElementById("btnEditor").innerText = isEditor ? l.editorOn : l.editorOff;
-        document.getElementById("btnReset").innerText = l.reset;
-        document.getElementById("toolLabelText").innerText = l.toolLabel;
-        document.getElementById("rotText").innerText = l.rotBtn;
-        document.getElementById("btnClear").innerText = l.clear;
-        document.getElementById("infoText").innerText = l.info;
-
-        // Обновляем текст в выпадающем списке
-        const select = document.getElementById("toolSelect");
-        for (let opt of select.options) {
-            opt.text = opt.getAttribute(`data-${currentLang}`);
-        }
-    }
-
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
     let isPlaying = false;
     let isAI = true;
     let isEditor = false;
-    let currentRotation = 0; // 0, 90, 180, 270
 
     let player = {
         x: 100,
         y: 300,
         size: 30,
         vy: 0,
-        onGround: false,
-        mode: "cube",
-        airplaneLane: 0
+        onGround: false
     };
 
     const groundY = 330;
@@ -172,36 +125,32 @@
     let gameSpeed = 5;
 
     let levelObjects = [
-        { x: 400, y: 300, type: "block", rotation: 0 },
-        { x: 600, y: 300, type: "spike", rotation: 0 },
-        { x: 800, y: 250, type: "orb", rotation: 0 },
-        { x: 1100, y: 300, type: "airplanePortal", rotation: 0 },
-        { x: 1300, y: 300, type: "spike", rotation: 0 }
+        { x: 400, y: 300, type: "block" },
+        { x: 600, y: 300, type: "spike" },
+        { x: 800, y: 250, type: "orb" },
+        { x: 1000, y: 310, type: "pad" },
+        { x: 1300, y: 300, type: "spike" }
     ];
 
     function togglePlay() {
         isPlaying = !isPlaying;
-        updateTexts();
+        document.getElementById("btnPlay").innerText = isPlaying ? "⏸ Пауза" : "▶ Играть";
         document.getElementById("btnPlay").classList.toggle("active", isPlaying);
     }
 
     function toggleAI() {
         isAI = !isAI;
-        updateTexts();
-        document.getElementById("btnAI").classList.toggle("active", isAI);
+        const btn = document.getElementById("btnAI");
+        btn.innerText = `🤖 AI: ${isAI ? "ВКЛ" : "ВЫКЛ"}`;
+        btn.classList.toggle("active", isAI);
     }
 
     function toggleEditor() {
         isEditor = !isEditor;
-        updateTexts();
+        document.getElementById("btnEditor").innerText = `✏️ Редактор: ${isEditor ? "ВКЛ" : "ВЫКЛ"}`;
         document.getElementById("btnEditor").classList.toggle("active", isEditor);
         document.getElementById("editorTools").style.display = isEditor ? "flex" : "none";
         if (isEditor) isPlaying = false;
-    }
-
-    function rotateToolObject() {
-        currentRotation = (currentRotation + 90) % 360;
-        document.getElementById("rotLabel").innerText = currentRotation + "°";
     }
 
     function resetLevel() {
@@ -209,8 +158,6 @@
         player.y = 300;
         player.vy = 0;
         player.onGround = false;
-        player.mode = "cube";
-        player.airplaneLane = 0;
         cameraX = 0;
     }
 
@@ -226,66 +173,57 @@
     });
 
     canvas.addEventListener("click", (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left + cameraX;
-        const mouseY = e.clientY - rect.top;
-
         if (isEditor) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left + cameraX;
+            const mouseY = e.clientY - rect.top;
             const gridX = Math.floor(mouseX / 30) * 30;
             const gridY = Math.floor(mouseY / 30) * 30;
 
-            const existingIndex = levelObjects.findIndex(obj => Math.abs(obj.x - gridX) < 15 && Math.abs(obj.y - gridY) < 15);
-            if (existingIndex !== -1) {
-                levelObjects.splice(existingIndex, 1);
-            } else {
-                const tool = document.getElementById("toolSelect").value;
-                levelObjects.push({ x: gridX, y: gridY, type: tool, rotation: currentRotation });
-            }
+            const tool = document.getElementById("toolSelect").value;
+            levelObjects.push({ x: gridX, y: gridY, type: tool });
         } else {
             handleAction();
         }
     });
 
+    canvas.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        if (isEditor) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left + cameraX;
+            const mouseY = e.clientY - rect.top;
+
+            const existingIndex = levelObjects.findIndex(obj => 
+                mouseX >= obj.x && mouseX <= obj.x + 30 && mouseY >= obj.y && mouseY <= obj.y + 30
+            );
+            if (existingIndex !== -1) {
+                levelObjects.splice(existingIndex, 1);
+            }
+        }
+    });
+
     function handleAction() {
         if (!isPlaying && !isEditor) togglePlay();
-
-        if (player.mode === "cube" && player.onGround) {
+        if (player.onGround) {
             player.vy = jumpForce;
             player.onGround = false;
-        } else if (player.mode === "airplane") {
-            player.airplaneLane = (player.airplaneLane + 1) % 3;
         }
     }
 
     function runAI() {
         if (!isAI || isEditor) return;
-
-        if (player.mode === "cube") {
-            let needJump = false;
-            for (let obj of levelObjects) {
-                if (obj.type === "spike" && obj.rotation === 0) {
-                    if (obj.x > player.x && obj.x - player.x < 85 && player.onGround) {
-                        needJump = true;
-                    }
+        let needJump = false;
+        for (let obj of levelObjects) {
+            if (obj.type === "spike") {
+                if (obj.x > player.x && obj.x - player.x < 85 && player.onGround) {
+                    needJump = true;
                 }
             }
-            if (needJump && player.onGround) {
-                player.vy = jumpForce;
-                player.onGround = false;
-            }
-        } else if (player.mode === "airplane") {
-            let danger = false;
-            for (let obj of levelObjects) {
-                if (obj.x > player.x && obj.x - player.x < 120) {
-                    let objLane = Math.round((groundY - obj.y) / 60);
-                    if (objLane === player.airplaneLane && (obj.type === "spike" || obj.type === "block")) {
-                        danger = true;
-                    }
-                }
-            }
-            if (danger) {
-                player.airplaneLane = (player.airplaneLane + 1) % 3;
-            }
+        }
+        if (needJump && player.onGround) {
+            player.vy = jumpForce;
+            player.onGround = false;
         }
     }
 
@@ -293,20 +231,13 @@
         if (isPlaying && !isEditor) {
             runAI();
 
-            if (player.mode === "cube") {
-                player.vy += gravity;
-                player.y += player.vy;
+            player.vy += gravity;
+            player.y += player.vy;
 
-                if (player.y >= groundY - player.size) {
-                    player.y = groundY - player.size;
-                    player.vy = 0;
-                    player.onGround = true;
-                }
-            } else if (player.mode === "airplane") {
-                let targetY = groundY - player.size - (player.airplaneLane * 60);
-                player.y += (targetY - player.y) * 0.2;
+            if (player.y >= groundY - player.size) {
+                player.y = groundY - player.size;
                 player.vy = 0;
-                player.onGround = false;
+                player.onGround = true;
             }
 
             cameraX += gameSpeed;
@@ -315,9 +246,6 @@
                 if (Math.abs(player.x - obj.x) < 25 && Math.abs(player.y - obj.y) < 25) {
                     if (obj.type === "spike") {
                         resetLevel();
-                    } else if (obj.type === "airplanePortal") {
-                        player.mode = "airplane";
-                        player.airplaneLane = 0;
                     } else if (obj.type === "orb") {
                         player.vy = jumpForce * 1.1;
                     } else if (obj.type === "pad") {
@@ -343,87 +271,44 @@
                 ctx.lineTo(x, groundY);
                 ctx.stroke();
             }
-            for (let y = 0; y < groundY; y += 60) {
-                ctx.strokeStyle = "rgba(255,140,0,0.1)";
-                ctx.beginPath();
-                ctx.moveTo(cameraX, y);
-                ctx.lineTo(cameraX + canvas.width, y);
-                ctx.stroke();
-            }
         }
 
-        ctx.fillStyle = "#222244";
+        ctx.fillStyle = "#16162c";
         ctx.fillRect(cameraX, groundY, canvas.width, canvas.height - groundY);
         ctx.fillStyle = "#ff8c00";
         ctx.fillRect(cameraX, groundY, canvas.width, 4);
 
-        if (player.mode === "airplane") {
-            ctx.strokeStyle = "rgba(255, 140, 0, 0.2)";
-            ctx.setLineDash([5, 5]);
-            for (let i = 0; i < 3; i++) {
-                let laneY = groundY - (i * 60);
-                ctx.beginPath();
-                ctx.moveTo(cameraX, laneY);
-                ctx.lineTo(cameraX + canvas.width, laneY);
-                ctx.stroke();
-            }
-            ctx.setLineDash([]);
-        }
-
         for (let obj of levelObjects) {
-            ctx.save();
-            ctx.translate(obj.x + 15, obj.y + 15);
-            ctx.rotate((obj.rotation * Math.PI) / 180);
-
             if (obj.type === "block") {
                 ctx.fillStyle = "#4a4ae2";
-                ctx.fillRect(-15, -15, 30, 30);
+                ctx.fillRect(obj.x, obj.y, 30, 30);
                 ctx.strokeStyle = "#fff";
-                ctx.strokeRect(-15, -15, 30, 30);
+                ctx.strokeRect(obj.x, obj.y, 30, 30);
             } else if (obj.type === "spike") {
                 ctx.fillStyle = "#ff3333";
                 ctx.beginPath();
-                ctx.moveTo(0, -15);
-                ctx.lineTo(15, 15);
-                ctx.lineTo(-15, 15);
+                ctx.moveTo(obj.x + 15, obj.y);
+                ctx.lineTo(obj.x + 30, obj.y + 30);
+                ctx.lineTo(obj.x, obj.y + 30);
                 ctx.closePath();
                 ctx.fill();
             } else if (obj.type === "orb") {
                 ctx.fillStyle = "#ff00ff";
                 ctx.beginPath();
-                ctx.arc(0, 0, 12, 0, Math.PI * 2);
+                ctx.arc(obj.x + 15, obj.y + 15, 12, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.strokeStyle = "#fff";
                 ctx.stroke();
             } else if (obj.type === "pad") {
                 ctx.fillStyle = "#ffff00";
-                ctx.fillRect(-15, 5, 30, 10);
-            } else if (obj.type === "airplanePortal") {
-                ctx.fillStyle = "#ff8c00";
-                ctx.fillRect(-8, -25, 16, 50);
-                ctx.fillStyle = "#fff";
-                ctx.font = "10px Arial";
-                ctx.fillText("AIR", -10, 0);
+                ctx.fillRect(obj.x, obj.y + 20, 30, 10);
             }
-            ctx.restore();
         }
 
-        if (player.mode === "cube") {
-            ctx.fillStyle = "#00ffcc";
-            ctx.fillRect(player.x, player.y, player.size, player.size);
-            ctx.strokeStyle = "#000";
-            ctx.strokeRect(player.x, player.y, player.size, player.size);
-        } else {
-            ctx.fillStyle = "#ff8c00";
-            ctx.beginPath();
-            ctx.moveTo(player.x - 5, player.y + 15);
-            ctx.lineTo(player.x + 35, player.y + 15);
-            ctx.lineTo(player.x + 15, player.y);
-            ctx.closePath();
-            ctx.fill();
-            ctx.strokeStyle = "#ffffff";
-            ctx.stroke();
-        }
+        ctx.fillStyle = "#00ffcc";
+        ctx.fillRect(player.x, player.y, player.size, player.size);
+        ctx.strokeStyle = "#000";
+        ctx.strokeRect(player.x, player.y, player.size, player.size);
 
         ctx.restore();
     }
