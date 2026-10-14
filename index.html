@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry AI v1.1 - Level Builder & Smart AI</title>
+    <title>Geometry AI v1.2 - Gravity Shift & Mono Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <script>
@@ -14,14 +14,6 @@
                     fontFamily: {
                         sans: ['Outfit', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        neonCyan: '#00f3ff',
-                        neonPink: '#ff007f',
-                        neonPurple: '#9d00ff',
-                        neonYellow: '#ffe600',
-                        neonGreen: '#00ff66',
-                        neonOrange: '#ff8c00',
                     }
                 }
             }
@@ -40,72 +32,71 @@
             width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.8);
+            background: #111;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(0, 243, 255, 0.4);
+            background: #ffffff;
             border-radius: 4px;
         }
         .tool-active {
-            border-color: #00f3ff !important;
-            background-color: rgba(0, 243, 255, 0.25) !important;
-            color: #00f3ff !important;
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+            border-color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
         }
         @keyframes cubeGlow {
-            0%, 100% { filter: drop-shadow(0 0 8px rgba(0, 243, 255, 0.6)); }
-            50% { filter: drop-shadow(0 0 16px rgba(0, 243, 255, 0.9)); }
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6)); }
+            50% { filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.9)); }
         }
         .logo-cube {
             animation: cubeGlow 2s infinite ease-in-out;
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans overflow-x-hidden select-none">
+<body class="bg-black text-zinc-100 min-h-screen flex flex-col font-sans overflow-x-hidden select-none">
 
-    <header class="border-b border-cyan-900/40 bg-slate-900/90 backdrop-blur-md px-4 py-3 flex flex-wrap justify-between items-center z-20 gap-3">
+    <header class="border-b border-zinc-800 bg-zinc-950/90 backdrop-blur-md px-4 py-3 flex flex-wrap justify-between items-center z-20 gap-3">
         <div class="flex items-center gap-3.5">
-            <!-- Логотип: Синий кубик -->
-            <div class="logo-cube w-11 h-11 rounded-xl bg-cyan-500 border-2 border-white flex items-center justify-center font-black text-xl shadow-lg shadow-cyan-500/30 text-slate-950 relative">
-                <div class="absolute inset-1.5 border border-slate-950/40 rounded-lg"></div>
-                🟦
+            <div class="logo-cube w-11 h-11 rounded-xl bg-white border-2 border-zinc-400 flex items-center justify-center font-black text-xl shadow-lg text-black relative">
+                <div class="absolute inset-1.5 border border-black/40 rounded-lg"></div>
+                🔲
             </div>
             <div>
                 <div class="flex items-center gap-2">
-                    <h1 class="text-xl font-black italic tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-yellow-300" id="logoTitleText">
+                    <h1 class="text-xl font-black italic tracking-wide text-white" id="logoTitleText">
                         Геометрия ИИ
                     </h1>
-                    <span class="px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/50 text-cyan-300 font-mono text-[10px] font-bold">
-                        v1.1
+                    <span class="px-2 py-0.5 rounded-full bg-zinc-800 border border-zinc-600 text-zinc-200 font-mono text-[10px] font-bold">
+                        v1.2
                     </span>
                 </div>
-                <p class="text-[11px] text-slate-400 font-mono" id="subHeaderDesc">Кубик • Самолётик • Автопилот ИИ • Порталы</p>
+                <p class="text-[11px] text-zinc-400 font-mono" id="subHeaderDesc">Гравитационный Орб • Чёрно-Белый Стиль • Исправленный Прыжок</p>
             </div>
         </div>
 
-        <div class="flex items-center gap-2 bg-slate-950/80 p-1 rounded-xl border border-slate-800">
-            <button id="modeEditorBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-cyan-500 text-slate-950 shadow-md">
+        <div class="flex items-center gap-2 bg-zinc-900 p-1 rounded-xl border border-zinc-800">
+            <button id="modeEditorBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-black shadow-md">
                 🛠️ <span data-ru="Редактор" data-en="Editor">Редактор</span>
             </button>
-            <button id="modePlayBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white">
+            <button id="modePlayBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-zinc-400 hover:text-white">
                 🎮 <span data-ru="Играть" data-en="Play">Играть</span>
             </button>
-            <button id="modeAIBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white">
+            <button id="modeAIBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-zinc-400 hover:text-white">
                 🧠 <span data-ru="Умный ИИ 2.0" data-en="Smart AI 2.0">Умный ИИ 2.0</span>
             </button>
         </div>
 
         <div class="flex items-center gap-2">
-            <button id="btnLangToggle" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-cyan-300 transition">
+            <button id="btnLangToggle" class="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-bold text-zinc-200 transition">
                 🌐 RU / EN
             </button>
-            <button id="btnSoundToggle" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300 transition">
+            <button id="btnSoundToggle" class="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-bold text-zinc-300 transition">
                 🔊 <span data-ru="Звук: Вкл" data-en="Sound: On">Звук: Вкл</span>
             </button>
-            <button id="btnExportLevel" class="px-3 py-1.5 rounded-xl bg-purple-900/40 hover:bg-purple-800/50 border border-purple-500/40 text-xs font-bold text-purple-200 transition">
+            <button id="btnExportLevel" class="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-bold text-zinc-200 transition">
                 💾 <span data-ru="Сохранить" data-en="Save">Сохранить</span>
             </button>
-            <label class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300 cursor-pointer transition">
+            <label class="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-xs font-bold text-zinc-300 cursor-pointer transition">
                 📂 <span data-ru="Загрузить JSON" data-en="Load JSON">Загрузить JSON</span>
                 <input type="file" id="btnImportLevel" accept=".json" class="hidden">
             </label>
@@ -114,107 +105,107 @@
 
     <main class="flex-1 p-3 md:p-4 flex flex-col gap-3 max-w-7xl mx-auto w-full">
 
-        <div class="bg-slate-900/80 rounded-xl p-3 border border-cyan-900/30 flex justify-between items-center text-xs font-mono">
+        <div class="bg-zinc-950 rounded-xl p-3 border border-zinc-800 flex justify-between items-center text-xs font-mono">
             <div class="flex items-center gap-4">
-                <span class="text-cyan-400 font-bold"><span id="hudModeLabel">РЕЖИМ</span>: <span id="hudModeText" class="text-white">РЕДАКТОР</span></span>
-                <span class="text-fuchsia-400 font-bold"><span id="hudAttemptLabel">ПОПЫТКА</span>: <span id="hudAttemptText" class="text-white">#1</span></span>
+                <span class="text-zinc-300 font-bold"><span id="hudModeLabel">РЕЖИМ</span>: <span id="hudModeText" class="text-white">РЕДАКТОР</span></span>
+                <span class="text-zinc-400 font-bold"><span id="hudAttemptLabel">ПОПЫТКА</span>: <span id="hudAttemptText" class="text-white">#1</span></span>
             </div>
             <div class="flex items-center gap-3 w-1/2 max-w-xs">
-                <span class="text-yellow-400 font-bold text-nowrap"><span id="hudProgressLabel">ПРОГРЕСС</span>: <span id="hudPercentText" class="text-white">0%</span></span>
-                <div class="w-full h-2.5 bg-slate-950 rounded-full border border-slate-800 overflow-hidden">
-                    <div id="hudProgressBar" class="h-full bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-yellow-400 w-0 transition-all duration-75"></div>
+                <span class="text-zinc-200 font-bold text-nowrap"><span id="hudProgressLabel">ПРОГРЕСС</span>: <span id="hudPercentText" class="text-white">0%</span></span>
+                <div class="w-full h-2.5 bg-zinc-900 rounded-full border border-zinc-800 overflow-hidden">
+                    <div id="hudProgressBar" class="h-full bg-white w-0 transition-all duration-75"></div>
                 </div>
             </div>
         </div>
 
-        <div class="relative w-full aspect-[21/9] min-h-[340px] bg-slate-950 rounded-2xl border-2 border-cyan-500/30 overflow-hidden shadow-2xl">
+        <div class="relative w-full aspect-[21/9] min-h-[340px] bg-black rounded-2xl border-2 border-zinc-800 overflow-hidden shadow-2xl">
             <canvas id="gameCanvas" class="w-full h-full block cursor-pointer"></canvas>
 
             <div id="editorScrollControls" class="absolute top-3 left-3 right-3 flex justify-between items-center pointer-events-none">
-                <div class="bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700 text-xs font-mono text-cyan-300 pointer-events-auto flex items-center gap-2 shadow-lg">
+                <div class="bg-zinc-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-zinc-700 text-xs font-mono text-zinc-200 pointer-events-auto flex items-center gap-2 shadow-lg">
                     <span id="camLabel">Камера:</span>
-                    <button id="btnScrollLeft" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-white font-bold transition">◀</button>
+                    <button id="btnScrollLeft" class="px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-white font-bold transition">◀</button>
                     <span id="scrollPosText" class="w-14 text-center font-bold">0px</span>
-                    <button id="btnScrollRight" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-white font-bold transition">▶</button>
+                    <button id="btnScrollRight" class="px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-white font-bold transition">▶</button>
                 </div>
-                <div class="bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700 text-xs font-mono text-slate-300 shadow-lg" id="editorHintText">
+                <div class="bg-zinc-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-zinc-700 text-xs font-mono text-zinc-300 shadow-lg" id="editorHintText">
                     💡 ЛКМ — поставить, ПКМ — удалить конкретный объект!
                 </div>
             </div>
 
             <div id="playControlsOverlay" class="hidden absolute top-3 right-3 flex items-center gap-2">
-                <button id="btnPlayRestart" class="px-4 py-2 bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/20 transition active:scale-95">
+                <button id="btnPlayRestart" class="px-4 py-2 bg-white hover:bg-zinc-200 text-black font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition active:scale-95">
                     🔄 <span data-ru="Старт / Рестарт" data-en="Start / Restart">Старт / Рестарт</span>
                 </button>
             </div>
 
-            <div id="winModal" class="hidden absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center gap-4 z-30 animate-fade-in">
-                <div class="text-4xl md:text-6xl font-black italic text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-fuchsia-400 to-cyan-400 animate-bounce" id="winTitleText">
-                    🎉 ТЫ ПОБЕДИЛ!
+            <div id="winModal" class="hidden absolute inset-0 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center gap-4 z-30">
+                <div class="text-4xl md:text-6xl font-black italic text-white tracking-widest animate-bounce" id="winTitleText">
+                    🎉 ПОБЕДА!
                 </div>
-                <p class="text-slate-300 font-mono text-sm" id="winSubText">Уровень прошел идеальный расчет!</p>
-                <button id="btnWinRestart" class="px-6 py-2.5 bg-gradient-to-r from-cyan-400 to-fuchsia-500 hover:from-cyan-300 hover:to-fuchsia-400 text-slate-950 font-black rounded-xl text-sm uppercase tracking-wider shadow-xl transition active:scale-95">
+                <p class="text-zinc-400 font-mono text-sm" id="winSubText">Уровень пройден идеально!</p>
+                <button id="btnWinRestart" class="px-6 py-2.5 bg-white hover:bg-zinc-200 text-black font-black rounded-xl text-sm uppercase tracking-wider shadow-xl transition active:scale-95">
                     <span data-ru="Заново" data-en="Restart">Заново</span> 🔄
                 </button>
             </div>
         </div>
 
-        <div id="aiLogContainer" class="hidden bg-slate-900/90 rounded-xl p-3 border border-fuchsia-500/40 flex flex-col gap-1.5 shadow-xl">
-            <div class="flex justify-between items-center text-xs font-mono text-fuchsia-400 font-bold">
+        <div id="aiLogContainer" class="hidden bg-zinc-950 rounded-xl p-3 border border-zinc-800 flex flex-col gap-1.5 shadow-xl">
+            <div class="flex justify-between items-center text-xs font-mono text-zinc-300 font-bold">
                 <span class="flex items-center gap-2">
-                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-fuchsia-500 animate-ping"></span>
-                    <span id="aiLogTitle">🤖 МЫСЛИ УМНОГО ИИ (CUBE & AIRPLANE AUTO-PILOT):</span>
+                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
+                    <span id="aiLogTitle">🤖 МЫСЛИ УМНОГО ИИ (AUTO-PILOT):</span>
                 </span>
-                <span id="aiStatusBadge" class="text-cyan-400">Сканирование траектории...</span>
+                <span id="aiStatusBadge" class="text-zinc-400">Сканирование траектории...</span>
             </div>
-            <div id="aiThoughtLog" class="h-16 bg-slate-950/95 rounded-lg p-2.5 font-mono text-[11px] text-slate-300 overflow-y-auto custom-scrollbar flex flex-col gap-1">
-                <div class="text-cyan-400">[ИИ 2.0]: Автопилот куба и самолётика активирован!</div>
+            <div id="aiThoughtLog" class="h-16 bg-black rounded-lg p-2.5 font-mono text-[11px] text-zinc-300 overflow-y-auto custom-scrollbar flex flex-col gap-1 border border-zinc-800">
+                <div class="text-zinc-400">[ИИ 2.0]: Готов к инверсии гравитации и полёту!</div>
             </div>
         </div>
 
-        <div id="bottomEditorBar" class="bg-slate-900/95 border border-cyan-500/40 rounded-2xl p-3 shadow-2xl flex flex-wrap items-center justify-between gap-3">
+        <div id="bottomEditorBar" class="bg-zinc-950 border border-zinc-800 rounded-2xl p-3 shadow-2xl flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 w-full md:w-auto">
-                <span class="text-xs font-mono font-bold text-cyan-400 mr-1 uppercase shrink-0" id="toolLabelText">Инструмент:</span>
+                <span class="text-xs font-mono font-bold text-zinc-400 mr-1 uppercase shrink-0" id="toolLabelText">Инструмент:</span>
                 
-                <button data-tool="SPIKE" class="tool-btn tool-active px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 transition shrink-0">
+                <button data-tool="SPIKE" class="tool-btn tool-active px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-900 text-xs font-bold flex items-center gap-2 transition shrink-0">
                     <span class="text-base">🔺</span> <span data-ru="Шип" data-en="Spike">Шип</span>
                 </button>
 
-                <button data-tool="BLOCK" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-slate-300 hover:bg-slate-700 transition shrink-0">
+                <button data-tool="BLOCK" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-900 text-xs font-bold flex items-center gap-2 text-zinc-300 hover:bg-zinc-800 transition shrink-0">
                     <span class="text-base">⬛</span> <span data-ru="Блок" data-en="Block">Блок</span>
                 </button>
 
-                <button data-tool="PAD" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-yellow-400 hover:bg-slate-700 transition shrink-0">
-                    <span class="text-base">🟨</span> <span data-ru="Батут" data-en="Jump Pad">Jump Pad</span>
+                <button data-tool="PAD" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-900 text-xs font-bold flex items-center gap-2 text-zinc-300 hover:bg-zinc-800 transition shrink-0">
+                    <span class="text-base">🟨</span> <span data-ru="Батут" data-en="Jump Pad">Батут</span>
                 </button>
 
-                <button data-tool="ORB" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-yellow-300 hover:bg-slate-700 transition shrink-0">
-                    <span class="text-base">🟡</span> <span data-ru="Орб" data-en="Jump Orb">Jump Orb</span>
+                <button data-tool="GRAVITY_ORB" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-900 text-xs font-bold flex items-center gap-2 text-zinc-100 hover:bg-zinc-800 transition shrink-0">
+                    <span class="text-base">⚪</span> <span data-ru="Грави-Орб" data-en="Grav-Orb">Грави-Орб</span>
                 </button>
 
-                <button data-tool="AIRPLANE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-orange-400 hover:bg-slate-700 transition shrink-0">
+                <button data-tool="AIRPLANE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-900 text-xs font-bold flex items-center gap-2 text-zinc-300 hover:bg-zinc-800 transition shrink-0">
                     <span class="text-base">✈️</span> <span data-ru="Портал Самолётика" data-en="Airplane Portal">Портал Самолётика</span>
                 </button>
 
-                <button data-tool="CUBE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-cyan-400 hover:bg-slate-700 transition shrink-0">
+                <button data-tool="CUBE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-900 text-xs font-bold flex items-center gap-2 text-zinc-300 hover:bg-zinc-800 transition shrink-0">
                     <span class="text-base">🟦</span> <span data-ru="Портал Кубика" data-en="Cube Portal">Портал Кубика</span>
                 </button>
 
-                <button data-tool="GOAL" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-emerald-400 hover:bg-slate-700 transition shrink-0">
+                <button data-tool="GOAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-900 text-xs font-bold flex items-center gap-2 text-zinc-100 hover:bg-zinc-800 transition shrink-0">
                     <span class="text-base">🏁</span> <span data-ru="Финиш" data-en="Goal">Финиш</span>
                 </button>
 
-                <button data-tool="ERASER" class="tool-btn px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold flex items-center gap-2 text-red-400 hover:bg-slate-700 transition shrink-0">
+                <button data-tool="ERASER" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-900 text-xs font-bold flex items-center gap-2 text-zinc-400 hover:bg-zinc-800 transition shrink-0">
                     <span class="text-base">❌</span> <span data-ru="Ластик" data-en="Eraser">Ластик</span>
                 </button>
             </div>
 
             <div class="flex items-center gap-2">
-                <button id="btnRotateObject" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-cyan-500/40 text-cyan-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-lg">
+                <button id="btnRotateObject" class="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-lg">
                     🔄 <span id="rotLabelText">Поворот</span>: <span id="rotValText">0°</span>
                 </button>
 
-                <button id="btnClearAll" class="px-3.5 py-2 bg-red-950/60 hover:bg-red-900 border border-red-700/60 text-red-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-lg">
+                <button id="btnClearAll" class="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-lg">
                     🗑️ <span data-ru="Очистить карту" data-en="Clear All">Очистить карту</span>
                 </button>
             </div>
@@ -268,14 +259,14 @@
                     osc.stop(this.ctx.currentTime + duration);
                 } catch(e){}
             }
-            playJump() { this.playTone(420, 0.15, 'square', 0.08); }
-            playPad() { this.playTone(650, 0.25, 'triangle', 0.12); }
-            playOrb() { this.playTone(850, 0.2, 'sine', 0.1); }
-            playExplode() { this.playTone(110, 0.35, 'sawtooth', 0.15); }
+            playJump() { this.playTone(400, 0.12, 'square', 0.08); }
+            playPad() { this.playTone(600, 0.2, 'triangle', 0.1); }
+            playOrb() { this.playTone(900, 0.25, 'sine', 0.12); }
+            playExplode() { this.playTone(100, 0.3, 'sawtooth', 0.15); }
             playWin() {
                 if (!this.enabled || !this.ctx) return;
-                [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => {
-                    setTimeout(() => this.playTone(f, 0.3, 'sine', 0.1), i * 110);
+                [440, 554.37, 659.25, 880].forEach((f, i) => {
+                    setTimeout(() => this.playTone(f, 0.25, 'sine', 0.1), i * 100);
                 });
             }
         }
@@ -285,10 +276,10 @@
         const ctx = canvas.getContext('2d');
 
         const GRID_SIZE = 40;
-        const GRAVITY = 0.65;
-        const JUMP_FORCE = -12.5;
-        const PAD_FORCE = -16.5;
-        const ORB_FORCE = -12.0;
+        const BASE_GRAVITY = 0.65;
+        // 📉 Выверенный уменьшенный прыжок для идеального контроля!
+        const JUMP_FORCE = -10.2; 
+        const PAD_FORCE = -14.5;
         const GAME_SPEED = 6.5;
 
         let currentMode = 'EDITOR'; 
@@ -308,13 +299,13 @@
             rotation: 0,
             isGrounded: false,
             mode: 'cube',
+            gravityDir: 1, // 1 = обычная гравитация, -1 = перевернутая
             airplaneLane: 0,
             trail: []
         };
 
         let levelObjects = [];
         let particles = [];
-        let aiPredictedTrajectory = [];
 
         function resizeCanvas() {
             const rect = canvas.getBoundingClientRect();
@@ -348,119 +339,68 @@
             player.rotation = 0;
             player.isGrounded = true;
             player.mode = 'cube';
+            player.gravityDir = 1;
             player.airplaneLane = 0;
             player.trail = [];
             levelObjects.forEach(o => o.used = false);
             document.getElementById('winModal').classList.add('hidden');
         }
 
-        function simulateCubeTrajectory(startX, startY, startVy, shouldJumpOnStart) {
-            const gy = getGroundY();
-            let simX = startX;
-            let simY = startY;
-            let simVy = startVy;
-            let isGrounded = false;
-            let trajectoryPoints = [];
-
-            if (shouldJumpOnStart) {
-                simVy = JUMP_FORCE;
-            }
-
-            for (let step = 0; step < 70; step++) {
-                simX += GAME_SPEED;
-                simVy += GRAVITY;
-                simY += simVy;
-
-                if (simY >= gy - player.size) {
-                    simY = gy - player.size;
-                    simVy = 0;
-                    isGrounded = true;
-                }
-
-                trajectoryPoints.push({ x: simX, y: simY });
-
-                for (let obj of levelObjects) {
-                    const oy = gy - obj.y - (obj.h || 40);
-                    const ps = player.size;
-
-                    if (obj.type === 'SPIKE') {
-                        if (simX + ps - 8 > obj.x && simX + 8 < obj.x + 40 && simY + ps > oy && simY + 8 < oy + 40) {
-                            return { safe: false, points: trajectoryPoints };
-                        }
-                    } else if (obj.type === 'BLOCK') {
-                        const bw = obj.w || 40;
-                        const bh = obj.h || 40;
-                        if (simX + ps > obj.x && simX < obj.x + bw && simY + ps > oy && simY < oy + bh) {
-                            if (simY + ps - simVy <= oy + 12) {
-                                simY = oy - ps;
-                                simVy = 0;
-                                isGrounded = true;
-                            } else {
-                                return { safe: false, points: trajectoryPoints };
-                            }
-                        }
-                    }
-                }
-                if (isGrounded && step > 10) break;
-            }
-            return { safe: true, points: trajectoryPoints };
-        }
-
-        function isLaneSafe(lane, futureX) {
-            const gy = getGroundY();
-            const laneHeights = [20, 120, 240];
-            const targetY = gy - player.size - laneHeights[lane];
-            const ps = player.size;
-
-            for (let obj of levelObjects) {
-                const oy = gy - obj.y - (obj.h || 40);
-                const bw = obj.w || 40;
-                const bh = obj.h || 40;
-
-                if (obj.type === 'BLOCK' || obj.type === 'SPIKE') {
-                    if (futureX + ps > obj.x && futureX < obj.x + bw) {
-                        if (targetY + ps > oy && targetY < oy + bh) {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
+        function triggerGravityOrb(orbObj) {
+            player.gravityDir *= -1;
+            player.vy = player.gravityDir * -6;
+            sound.playOrb();
+            createParticles(orbObj.x + 20, getGroundY() - orbObj.y - 20, '#ffffff', 14);
         }
 
         function updateSmartAILogic() {
             if (currentMode !== 'AI' || !isRunning) return;
-            aiPredictedTrajectory = [];
+            const gy = getGroundY();
 
-            if (player.mode === 'cube') {
-                const noJumpSim = simulateCubeTrajectory(player.x, player.y, player.vy, false);
-                if (!noJumpSim.safe && player.isGrounded) {
-                    const jumpSim = simulateCubeTrajectory(player.x, player.y, player.vy, true);
-                    if (jumpSim.safe) {
-                        aiPredictedTrajectory = jumpSim.points;
-                        executeAction();
-                        logAIThought("Куб: Прыжок через препятствие!");
+            const px = player.x;
+            const py = player.y;
+            const ps = player.size;
+
+            // ИИ анализирует препятствия перед собой
+            levelObjects.forEach(obj => {
+                const oy = gy - obj.y - (obj.h || 40);
+                
+                // Проверка на Грави-Орб
+                if (obj.type === 'GRAVITY_ORB') {
+                    if (Math.abs(px - obj.x) < 40 && Math.abs(py - oy) < 50) {
+                        triggerGravityOrb(obj);
+                        logAIThought("ИИ активировал Грави-Орб!");
                     }
                 }
-            } else if (player.mode === 'airplane') {
-                let futureX = player.x + 60;
-                if (!isLaneSafe(player.airplaneLane, futureX)) {
-                    let safeLaneFound = false;
-                    let candidateLanes = [
-                        (player.airplaneLane + 1) % 3,
-                        (player.airplaneLane + 2) % 3
-                    ];
 
-                    for (let candidate of candidateLanes) {
-                        if (isLaneSafe(candidate, futureX)) {
-                            player.airplaneLane = candidate;
-                            sound.playJump();
-                            createParticles(player.x, player.y, '#ff8c00', 8);
-                            logAIThought(`Самолётик: Опасность! Смена полосы на #${candidate + 1}`);
-                            safeLaneFound = true;
-                            break;
+                // Прыжок над шипом или блоком в режиме куба
+                if (player.mode === 'cube' && player.isGrounded) {
+                    if (obj.x - px > 0 && obj.x - px < 110) {
+                        if (obj.type === 'SPIKE' || obj.type === 'BLOCK') {
+                            executeAction();
+                            logAIThought("Куб: Прыжок через препятствие!");
                         }
                     }
+                }
+            });
+
+            // Автопилот самолётика
+            if (player.mode === 'airplane') {
+                let futureX = player.x + 60;
+                const laneHeights = [20, 120, 240];
+                let currentTargetY = gy - player.size - laneHeights[player.airplaneLane];
+
+                let isBlockAhead = levelObjects.some(obj => {
+                    const oy = gy - obj.y - (obj.h || 40);
+                    return (obj.type === 'BLOCK' || obj.type === 'SPIKE') && 
+                           (futureX + ps > obj.x && futureX < obj.x + (obj.w || 40)) &&
+                           (currentTargetY + ps > oy && currentTargetY < oy + (obj.h || 40));
+                });
+
+                if (isBlockAhead) {
+                    player.airplaneLane = (player.airplaneLane + 1) % 3;
+                    sound.playJump();
+                    logAIThought(`Самолётик: Манёвр на полосу #${player.airplaneLane + 1}`);
                 }
             }
         }
@@ -469,20 +409,33 @@
             const logBox = document.getElementById('aiThoughtLog');
             if (!logBox) return;
             const item = document.createElement('div');
-            item.className = 'text-fuchsia-300';
-            item.innerText = `[ИИ Автопилот]: ${text}`;
+            item.className = 'text-zinc-300';
+            item.innerText = `[ИИ]: ${text}`;
             logBox.appendChild(item);
             logBox.scrollTop = logBox.scrollHeight;
         }
 
         function executeAction() {
             sound.init();
+            const gy = getGroundY();
+
+            // Проверка активации Грави-Орба при клике/нажатии
+            let hitOrb = levelObjects.find(obj => {
+                const oy = gy - obj.y - (obj.h || 40);
+                return obj.type === 'GRAVITY_ORB' && Math.abs(player.x - obj.x) < 50 && Math.abs(player.y - oy) < 60;
+            });
+
+            if (hitOrb) {
+                triggerGravityOrb(hitOrb);
+                return;
+            }
+
             if (player.mode === 'cube') {
                 if (player.isGrounded) {
-                    player.vy = JUMP_FORCE;
+                    player.vy = JUMP_FORCE * player.gravityDir;
                     player.isGrounded = false;
                     sound.playJump();
-                    createParticles(player.x, player.y + player.size, '#00f3ff', 6);
+                    createParticles(player.x, player.y + (player.gravityDir === 1 ? player.size : 0), '#ffffff', 6);
                 }
             } else if (player.mode === 'airplane') {
                 player.airplaneLane = (player.airplaneLane + 1) % 3;
@@ -505,11 +458,18 @@
             const gy = getGroundY();
 
             if (player.mode === 'cube') {
-                player.vy += GRAVITY;
+                player.vy += BASE_GRAVITY * player.gravityDir;
                 player.y += player.vy;
 
-                if (player.y >= gy - player.size) {
+                // Проверка земли (внизу)
+                if (player.gravityDir === 1 && player.y >= gy - player.size) {
                     player.y = gy - player.size;
+                    player.vy = 0;
+                    player.isGrounded = true;
+                } 
+                // Проверка потолка при инверсии гравитации
+                else if (player.gravityDir === -1 && player.y <= 0) {
+                    player.y = 0;
                     player.vy = 0;
                     player.isGrounded = true;
                 } else {
@@ -517,7 +477,7 @@
                 }
 
                 if (!player.isGrounded) {
-                    player.rotation += 8.5;
+                    player.rotation += 8.5 * player.gravityDir;
                 } else {
                     player.rotation = Math.round(player.rotation / 90) * 90;
                 }
@@ -534,7 +494,7 @@
             player.x += player.vx;
 
             if (Math.random() < 0.6) {
-                player.trail.push({ x: player.x + player.size/2, y: player.y + player.size/2, alpha: 0.6, color: player.mode === 'airplane' ? '#ff8c00' : '#00f3ff' });
+                player.trail.push({ x: player.x + player.size/2, y: player.y + player.size/2, alpha: 0.6 });
             }
             player.trail.forEach(t => t.alpha -= 0.04);
             player.trail = player.trail.filter(t => t.alpha > 0);
@@ -553,8 +513,15 @@
                     const bw = obj.w || 40;
                     const bh = obj.h || 40;
                     if (px + ps > obj.x && px < obj.x + bw && py + ps > oy && py < oy + bh) {
-                        if (player.mode === 'cube' && py + ps - player.vy <= oy + 12) {
+                        // Обычная посадка на блок сверху
+                        if (player.mode === 'cube' && player.gravityDir === 1 && py + ps - player.vy <= oy + 12) {
                             player.y = oy - ps;
+                            player.vy = 0;
+                            player.isGrounded = true;
+                        } 
+                        // Посадка на блок снизу при инвертированной гравитации
+                        else if (player.mode === 'cube' && player.gravityDir === -1 && py - player.vy >= oy + bh - 12) {
+                            player.y = oy + bh;
                             player.vy = 0;
                             player.isGrounded = true;
                         } else {
@@ -567,17 +534,17 @@
                     }
                 } else if (obj.type === 'PAD' && player.mode === 'cube') {
                     if (px + ps > obj.x && px < obj.x + 40 && py + ps >= oy - 5 && py < oy + 20) {
-                        player.vy = PAD_FORCE;
+                        player.vy = PAD_FORCE * player.gravityDir;
                         player.isGrounded = false;
                         sound.playPad();
-                        createParticles(obj.x + 20, oy, '#ffe600', 10);
+                        createParticles(obj.x + 20, oy, '#ffffff', 10);
                     }
                 } else if (obj.type === 'AIRPLANE_PORTAL') {
                     if (px + ps > obj.x && px < obj.x + 40 && py + ps > oy && py < oy + 40) {
                         if (player.mode !== 'airplane') {
                             player.mode = 'airplane';
                             player.airplaneLane = 0;
-                            createParticles(obj.x + 20, oy + 20, '#ff8c00', 15);
+                            createParticles(obj.x + 20, oy + 20, '#ffffff', 15);
                             sound.playOrb();
                         }
                     }
@@ -586,7 +553,7 @@
                         if (player.mode !== 'cube') {
                             player.mode = 'cube';
                             player.vy = 0;
-                            createParticles(obj.x + 20, oy + 20, '#00f3ff', 15);
+                            createParticles(obj.x + 20, oy + 20, '#ffffff', 15);
                             sound.playOrb();
                         }
                     }
@@ -609,7 +576,7 @@
 
         function handleDeath(reason) {
             sound.playExplode();
-            createParticles(player.x + player.size/2, player.y + player.size/2, '#ff007f', 22);
+            createParticles(player.x + player.size/2, player.y + player.size/2, '#ffffff', 22);
             attemptCount++;
             document.getElementById('hudAttemptText').innerText = `#${attemptCount}`;
             resetPlayer();
@@ -628,8 +595,9 @@
             const gy = getGroundY();
             const cameraX = (currentMode === 'EDITOR') ? editorCameraX : (player.x - 150);
 
+            // Сетка
             ctx.save();
-            ctx.strokeStyle = 'rgba(0, 243, 255, 0.12)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
             ctx.lineWidth = 1;
             const gridOffset = -(cameraX) % 40;
             for (let x = gridOffset; x < canvas.width; x += 40) {
@@ -643,6 +611,7 @@
             ctx.save();
             ctx.translate(-cameraX, 0);
 
+            // Старт в редакторе
             if (currentMode === 'EDITOR') {
                 let highestBlockY = gy;
                 levelObjects.forEach(obj => {
@@ -656,27 +625,28 @@
                 const startCubeY = highestBlockY - 34;
 
                 ctx.save();
-                ctx.fillStyle = 'rgba(0, 255, 102, 0.2)';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
                 ctx.fillRect(0, highestBlockY - GRID_SIZE, GRID_SIZE, GRID_SIZE);
-                ctx.strokeStyle = '#00ff66';
+                ctx.strokeStyle = '#ffffff';
                 ctx.lineWidth = 2;
                 ctx.setLineDash([4, 4]);
                 ctx.strokeRect(0, highestBlockY - GRID_SIZE, GRID_SIZE, GRID_SIZE);
 
-                ctx.fillStyle = 'rgba(0, 243, 255, 0.4)';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
                 ctx.fillRect(startCubeX, startCubeY, 34, 34);
-                ctx.strokeStyle = '#00f3ff';
+                ctx.strokeStyle = '#ffffff';
                 ctx.setLineDash([]);
                 ctx.strokeRect(startCubeX, startCubeY, 34, 34);
 
                 ctx.font = 'bold 10px JetBrains Mono';
-                ctx.fillStyle = '#00ff66';
+                ctx.fillStyle = '#ffffff';
                 ctx.fillText('СТАРТ', 2, highestBlockY - GRID_SIZE - 6);
                 ctx.restore();
             }
 
+            // Полосы самолётика
             if (isRunning && player.mode === 'airplane') {
-                ctx.strokeStyle = 'rgba(255, 140, 0, 0.45)';
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
                 ctx.setLineDash([6, 6]);
                 const laneHeights = [20, 120, 240];
                 for (let i = 0; i < 3; i++) {
@@ -689,6 +659,7 @@
                 ctx.setLineDash([]);
             }
 
+            // Отрисовка объектов
             levelObjects.forEach(obj => {
                 const oy = gy - obj.y - (obj.h || 40);
                 ctx.save();
@@ -696,9 +667,9 @@
                 ctx.rotate((obj.rotation || 0) * Math.PI / 180);
 
                 if (obj.type === 'BLOCK') {
-                    ctx.fillStyle = '#0f172a';
+                    ctx.fillStyle = '#18181b';
                     ctx.fillRect(-20, -20, 40, 40);
-                    ctx.strokeStyle = '#00f3ff';
+                    ctx.strokeStyle = '#ffffff';
                     ctx.lineWidth = 2;
                     ctx.strokeRect(-19, -19, 38, 38);
                 } else if (obj.type === 'SPIKE') {
@@ -707,25 +678,32 @@
                     ctx.lineTo(0, -20);
                     ctx.lineTo(20, 20);
                     ctx.closePath();
-                    ctx.fillStyle = '#ff007f';
+                    ctx.fillStyle = '#ffffff';
                     ctx.fill();
-                    ctx.strokeStyle = '#fff';
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 1.5;
                     ctx.stroke();
                 } else if (obj.type === 'PAD') {
-                    ctx.fillStyle = '#ffe600';
+                    ctx.fillStyle = '#ffffff';
                     ctx.fillRect(-20, 8, 40, 12);
-                    ctx.strokeStyle = '#fff';
+                    ctx.strokeStyle = '#000';
                     ctx.strokeRect(-20, 8, 40, 12);
-                } else if (obj.type === 'ORB') {
+                } else if (obj.type === 'GRAVITY_ORB') {
                     ctx.beginPath();
                     ctx.arc(0, 0, 14, 0, Math.PI * 2);
-                    ctx.fillStyle = obj.used ? '#475569' : '#ffe600';
+                    ctx.fillStyle = '#ffffff';
                     ctx.fill();
-                    ctx.strokeStyle = '#fff';
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    // Внутреннее чёрное кольцо орба
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 7, 0, Math.PI * 2);
+                    ctx.strokeStyle = '#000000';
                     ctx.lineWidth = 2;
                     ctx.stroke();
                 } else if (obj.type === 'AIRPLANE_PORTAL') {
-                    ctx.fillStyle = '#ff8c00';
+                    ctx.fillStyle = '#3f3f46';
                     ctx.fillRect(-10, -25, 20, 50);
                     ctx.strokeStyle = '#fff';
                     ctx.lineWidth = 2;
@@ -734,18 +712,18 @@
                     ctx.font = 'bold 8px monospace';
                     ctx.fillText('AIR', -9, 3);
                 } else if (obj.type === 'CUBE_PORTAL') {
-                    ctx.fillStyle = '#00f3ff';
+                    ctx.fillStyle = '#71717a';
                     ctx.fillRect(-10, -25, 20, 50);
                     ctx.strokeStyle = '#fff';
                     ctx.lineWidth = 2;
                     ctx.strokeRect(-10, -25, 20, 50);
-                    ctx.fillStyle = '#000';
+                    ctx.fillStyle = '#fff';
                     ctx.font = 'bold 8px monospace';
                     ctx.fillText('CUBE', -12, 3);
                 } else if (obj.type === 'GOAL') {
-                    ctx.fillStyle = 'rgba(0, 255, 102, 0.25)';
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
                     ctx.fillRect(-20, -20, 40, 40);
-                    ctx.strokeStyle = '#00ff66';
+                    ctx.strokeStyle = '#ffffff';
                     ctx.lineWidth = 3;
                     ctx.strokeRect(-20, -20, 40, 40);
                     ctx.font = '22px sans-serif';
@@ -754,9 +732,10 @@
                 ctx.restore();
             });
 
+            // Игрок и шлейф
             if (currentMode !== 'EDITOR') {
                 player.trail.forEach(t => {
-                    ctx.fillStyle = t.color === '#ff8c00' ? `rgba(255, 140, 0, ${t.alpha})` : `rgba(0, 243, 255, ${t.alpha})`;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${t.alpha})`;
                     ctx.fillRect(t.x - 12, t.y - 12, 24, 24);
                 });
 
@@ -765,34 +744,36 @@
                 ctx.rotate((player.rotation * Math.PI) / 180);
 
                 if (player.mode === 'cube') {
-                    ctx.fillStyle = '#00f3ff';
+                    ctx.fillStyle = '#ffffff';
                     ctx.fillRect(-player.size/2, -player.size/2, player.size, player.size);
-                    ctx.strokeStyle = '#ffffff';
+                    ctx.strokeStyle = '#000000';
                     ctx.lineWidth = 2.5;
                     ctx.strokeRect(-player.size/2, -player.size/2, player.size, player.size);
                 } else {
-                    ctx.fillStyle = '#ff8c00';
+                    ctx.fillStyle = '#ffffff';
                     ctx.beginPath();
                     ctx.moveTo(-15, 10);
                     ctx.lineTo(20, 0);
                     ctx.lineTo(-15, -10);
                     ctx.closePath();
                     ctx.fill();
-                    ctx.strokeStyle = '#ffffff';
+                    ctx.strokeStyle = '#000000';
                     ctx.lineWidth = 2;
                     ctx.stroke();
                 }
                 ctx.restore();
             }
 
+            // Частицы
             particles.forEach(p => {
                 ctx.fillStyle = p.color;
                 ctx.fillRect(p.x, p.y, p.size || 4, p.size || 4);
             });
 
-            ctx.fillStyle = '#090d16';
+            // Пол
+            ctx.fillStyle = '#09090b';
             ctx.fillRect(cameraX - 100, gy, canvas.width + 200, 80);
-            ctx.strokeStyle = '#00f3ff';
+            ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.moveTo(cameraX - 100, gy);
@@ -896,11 +877,11 @@
             const hudText = document.getElementById('hudModeText');
 
             [modeEditorBtn, modePlayBtn, modeAIBtn].forEach(b => {
-                b.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-400 hover:text-white';
+                b.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-zinc-400 hover:text-white';
             });
 
             if (mode === 'EDITOR') {
-                modeEditorBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-cyan-500 text-slate-950 shadow-md';
+                modeEditorBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-black shadow-md';
                 editorControls.classList.remove('hidden');
                 bottomBar.classList.remove('hidden');
                 playControls.classList.add('hidden');
@@ -908,7 +889,7 @@
                 hudText.innerText = currentLang === 'ru' ? 'РЕДАКТОР' : 'EDITOR';
                 document.getElementById('winModal').classList.add('hidden');
             } else if (mode === 'PLAY') {
-                modePlayBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-cyan-500 text-slate-950 shadow-md';
+                modePlayBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-black shadow-md';
                 editorControls.classList.add('hidden');
                 bottomBar.classList.add('hidden');
                 playControls.classList.remove('hidden');
@@ -916,7 +897,7 @@
                 hudText.innerText = currentLang === 'ru' ? 'ИГРА' : 'PLAY';
                 resetPlayer();
             } else if (mode === 'AI') {
-                modeAIBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-cyan-500 text-slate-950 shadow-md';
+                modeAIBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-black shadow-md';
                 editorControls.classList.add('hidden');
                 bottomBar.classList.add('hidden');
                 playControls.classList.remove('hidden');
