@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry AI v1.2 - Fixed Gravity Pad</title>
+    <title>Geometry AI v1.2 - Cleaned Grav-Pad</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <script>
@@ -75,7 +75,7 @@
                         v1.2
                     </span>
                 </div>
-                <p class="text-[11px] text-zinc-400 font-mono" id="subHeaderDesc">Вкладки • Музыка • Починенный Грави-Батут</p>
+                <p class="text-[11px] text-zinc-400 font-mono" id="subHeaderDesc">Вкладки • Музыка • Оптимизированный редактор</p>
             </div>
         </div>
 
@@ -356,7 +356,6 @@
                 { id: 'ORB', icon: '🟡', ru: 'Орб', en: 'Jump Orb' },
                 { id: 'GRAVITY_ORB', icon: '⚪', ru: 'Грави-Орб', en: 'Grav-Orb' },
                 { id: 'PAD', icon: '🟨', ru: 'Батут', en: 'Jump Pad' },
-                { id: 'GRAVITY_PAD', icon: '⏺️', ru: 'Грави-Батут', en: 'Grav-Pad' },
                 { id: 'AIRPLANE_PORTAL', icon: '✈️', ru: 'Портал Самолётика', en: 'Airplane Portal' },
                 { id: 'CUBE_PORTAL', icon: '🟩', ru: 'Портал Кубика', en: 'Cube Portal' }
             ],
@@ -475,13 +474,6 @@
             player.isGrounded = false;
             sound.playOrb();
             createParticles(orbObj.x + 20, getGroundY() - orbObj.y - 20, '#ffe600', 12);
-        }
-
-        function triggerGravityPad() {
-            player.gravityDir *= -1;
-            player.vy = PAD_FORCE * player.gravityDir;
-            player.isGrounded = false;
-            sound.playPad();
         }
 
         function isLaneSafe(lane, futureX) {
@@ -678,12 +670,6 @@
                         sound.playPad();
                         createParticles(obj.x + 20, oy, '#ffe600', 10);
                     }
-                } else if (obj.type === 'GRAVITY_PAD' && player.mode === 'cube') {
-                    // ИСПРАВЛЕННЫЙ ГРАВИТАЦИОННЫЙ БАТУТ (срабатывает при касании)
-                    if (px + ps > obj.x && px < obj.x + 40 && py + ps >= oy - 5 && py < oy + 20) {
-                        triggerGravityPad();
-                        createParticles(obj.x + 20, oy, '#ffffff', 12);
-                    }
                 } else if (obj.type === 'AIRPLANE_PORTAL') {
                     if (px + ps > obj.x && px < obj.x + 40 && py + ps > oy && py < oy + 40) {
                         if (player.mode !== 'airplane') {
@@ -830,16 +816,6 @@
                     ctx.strokeStyle = '#000000';
                     ctx.lineWidth = 2;
                     ctx.strokeRect(-20, 8, 40, 12);
-                } else if (obj.type === 'GRAVITY_PAD') {
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(-20, 8, 40, 12);
-                    ctx.strokeStyle = '#000000';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(-20, 8, 40, 12);
-                    ctx.beginPath();
-                    ctx.arc(0, 14, 4, 0, Math.PI * 2);
-                    ctx.fillStyle = '#000000';
-                    ctx.fill();
                 } else if (obj.type === 'ORB') {
                     ctx.beginPath();
                     ctx.arc(0, 0, 14, 0, Math.PI * 2);
