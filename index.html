@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry AI v1.2 - Gravity Shift & Mono Edition</title>
+    <title>Geometry AI v1.2 - Full Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <script>
@@ -70,7 +70,7 @@
                         v1.2
                     </span>
                 </div>
-                <p class="text-[11px] text-zinc-400 font-mono" id="subHeaderDesc">Кубик • Самолётик • Грави-Орб • Автопилот ИИ</p>
+                <p class="text-[11px] text-zinc-400 font-mono" id="subHeaderDesc">Кубик • Самолётик • Батуты • Орбы • Автопилот ИИ</p>
             </div>
         </div>
 
@@ -175,27 +175,31 @@
                     <span class="text-base">⬛</span> <span data-ru="Блок" data-en="Block">Блок</span>
                 </button>
 
-                <button data-tool="PAD" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-200 hover:bg-zinc-700 transition shrink-0">
+                <button data-tool="PAD" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-yellow-400 hover:bg-zinc-700 transition shrink-0">
                     <span class="text-base">🟨</span> <span data-ru="Батут" data-en="Jump Pad">Батут</span>
+                </button>
+
+                <button data-tool="ORB" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-yellow-300 hover:bg-zinc-700 transition shrink-0">
+                    <span class="text-base">🟡</span> <span data-ru="Орб" data-en="Jump Orb">Орб</span>
                 </button>
 
                 <button data-tool="GRAVITY_ORB" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-white hover:bg-zinc-700 transition shrink-0">
                     <span class="text-base">⚪</span> <span data-ru="Грави-Орб" data-en="Grav-Orb">Грави-Орб</span>
                 </button>
 
-                <button data-tool="AIRPLANE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-300 hover:bg-zinc-700 transition shrink-0">
+                <button data-tool="AIRPLANE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-orange-400 hover:bg-zinc-700 transition shrink-0">
                     <span class="text-base">✈️</span> <span data-ru="Портал Самолётика" data-en="Airplane Portal">Портал Самолётика</span>
                 </button>
 
-                <button data-tool="CUBE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-300 hover:bg-zinc-700 transition shrink-0">
+                <button data-tool="CUBE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-cyan-400 hover:bg-zinc-700 transition shrink-0">
                     <span class="text-base">🟦</span> <span data-ru="Портал Кубика" data-en="Cube Portal">Портал Кубика</span>
                 </button>
 
-                <button data-tool="GOAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-100 hover:bg-zinc-700 transition shrink-0">
+                <button data-tool="GOAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-emerald-400 hover:bg-zinc-700 transition shrink-0">
                     <span class="text-base">🏁</span> <span data-ru="Финиш" data-en="Goal">Финиш</span>
                 </button>
 
-                <button data-tool="ERASER" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-400 hover:bg-zinc-700 transition shrink-0">
+                <button data-tool="ERASER" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-red-400 hover:bg-zinc-700 transition shrink-0">
                     <span class="text-base">❌</span> <span data-ru="Ластик" data-en="Eraser">Ластик</span>
                 </button>
             </div>
@@ -277,8 +281,9 @@
 
         const GRID_SIZE = 40;
         const BASE_GRAVITY = 0.65;
-        const JUMP_FORCE = -10.2; // 📉 Выверенный идеальный прыжок
+        const JUMP_FORCE = -10.2; // 📉 Идеальный уменьшенный прыжок
         const PAD_FORCE = -14.5;
+        const ORB_FORCE = -11.0;
         const GAME_SPEED = 6.5;
 
         let currentMode = 'EDITOR'; 
@@ -298,7 +303,7 @@
             rotation: 0,
             isGrounded: false,
             mode: 'cube',
-            gravityDir: 1, // 1 = вниз, -1 = инверсия гравитации вверх
+            gravityDir: 1, // 1 = вниз, -1 = вверх
             airplaneLane: 0,
             trail: []
         };
@@ -353,55 +358,11 @@
             createParticles(orbObj.x + 20, getGroundY() - orbObj.y - 20, '#ffffff', 14);
         }
 
-        function simulateCubeTrajectory(startX, startY, startVy, startGrav, shouldJumpOnStart) {
-            const gy = getGroundY();
-            let simX = startX;
-            let simY = startY;
-            let simVy = startVy;
-            let simGrav = startGrav;
-            let isGrounded = false;
-            let trajectoryPoints = [];
-
-            if (shouldJumpOnStart) {
-                simVy = JUMP_FORCE * simGrav;
-            }
-
-            for (let step = 0; step < 70; step++) {
-                simX += GAME_SPEED;
-                simVy += BASE_GRAVITY * simGrav;
-                simY += simVy;
-
-                if (simGrav === 1 && simY >= gy - player.size) {
-                    simY = gy - player.size;
-                    simVy = 0;
-                    isGrounded = true;
-                } else if (simGrav === -1 && simY <= 0) {
-                    simY = 0;
-                    simVy = 0;
-                    isGrounded = true;
-                }
-
-                trajectoryPoints.push({ x: simX, y: simY });
-
-                for (let obj of levelObjects) {
-                    const oy = gy - obj.y - (obj.h || 40);
-                    const ps = player.size;
-
-                    if (obj.type === 'SPIKE') {
-                        if (simX + ps - 8 > obj.x && simX + 8 < obj.x + 40 && simY + ps > oy && simY + 8 < oy + 40) {
-                            return { safe: false, points: trajectoryPoints };
-                        }
-                    } else if (obj.type === 'BLOCK') {
-                        const bw = obj.w || 40;
-                        const bh = obj.h || 40;
-                        if (simX + ps > obj.x && simX < obj.x + bw && simY + ps > oy && simY < oy + bh) {
-                            return { safe: false, points: trajectoryPoints };
-                        }
-                    }
-                }
-                if (isGrounded && step > 10) break;
-            }
-            return { safe: true, points: trajectoryPoints };
+        function triggerJumpOrb(orbObj) {
+            player.vy = ORB_FORCE * player.gravityDir;
+            player.isGrounded = false;
+            sound.playOrb();
+            createParticles(orbObj.x + 20, getGroundY() - orbObj.y - 20, '#ffe600', 12);
         }
 
         function isLaneSafe(lane, futureX) {
@@ -428,10 +389,8 @@
 
         function updateSmartAILogic() {
             if (currentMode !== 'AI' || !isRunning) return;
-            aiPredictedTrajectory = [];
             const gy = getGroundY();
 
-            // Проверка на грави-орб перед кубом
             levelObjects.forEach(obj => {
                 const oy = gy - obj.y - (obj.h || 40);
                 if (obj.type === 'GRAVITY_ORB') {
@@ -439,18 +398,22 @@
                         triggerGravityOrb(obj);
                         logAIThought("ИИ активировал Грави-Орб!");
                     }
+                } else if (obj.type === 'ORB' && !obj.used) {
+                    if (Math.abs(player.x - obj.x) < 45 && Math.abs(player.y - oy) < 55) {
+                        triggerJumpOrb(obj);
+                        obj.used = true;
+                        logAIThought("ИИ активировал Орб!");
+                    }
                 }
             });
 
-            if (player.mode === 'cube') {
-                const noJumpSim = simulateCubeTrajectory(player.x, player.y, player.vy, player.gravityDir, false);
-                if (!noJumpSim.safe && player.isGrounded) {
-                    const jumpSim = simulateCubeTrajectory(player.x, player.y, player.vy, player.gravityDir, true);
-                    if (jumpSim.safe) {
-                        aiPredictedTrajectory = jumpSim.points;
-                        executeAction();
-                        logAIThought("Куб: Прыжок через препятствие!");
-                    }
+            if (player.mode === 'cube' && player.isGrounded) {
+                let obstacleAhead = levelObjects.some(obj => {
+                    return (obj.type === 'SPIKE' || obj.type === 'BLOCK') && (obj.x - player.x > 0 && obj.x - player.x < 110);
+                });
+                if (obstacleAhead) {
+                    executeAction();
+                    logAIThought("Куб: Прыжок через препятствие!");
                 }
             } else if (player.mode === 'airplane') {
                 let futureX = player.x + 60;
@@ -464,7 +427,7 @@
                         if (isLaneSafe(candidate, futureX)) {
                             player.airplaneLane = candidate;
                             sound.playJump();
-                            createParticles(player.x, player.y, '#ffffff', 8);
+                            createParticles(player.x, player.y, '#ff8c00', 8);
                             logAIThought(`Самолётик: Манёвр на полосу #${candidate + 1}`);
                             break;
                         }
@@ -487,13 +450,24 @@
             sound.init();
             const gy = getGroundY();
 
-            let hitOrb = levelObjects.find(obj => {
+            let hitGravOrb = levelObjects.find(obj => {
                 const oy = gy - obj.y - (obj.h || 40);
                 return obj.type === 'GRAVITY_ORB' && Math.abs(player.x - obj.x) < 50 && Math.abs(player.y - oy) < 60;
             });
 
+            if (hitGravOrb) {
+                triggerGravityOrb(hitGravOrb);
+                return;
+            }
+
+            let hitOrb = levelObjects.find(obj => {
+                const oy = gy - obj.y - (obj.h || 40);
+                return obj.type === 'ORB' && !obj.used && Math.abs(player.x - obj.x) < 50 && Math.abs(player.y - oy) < 60;
+            });
+
             if (hitOrb) {
-                triggerGravityOrb(hitOrb);
+                triggerJumpOrb(hitOrb);
+                hitOrb.used = true;
                 return;
             }
 
@@ -598,14 +572,14 @@
                         player.vy = PAD_FORCE * player.gravityDir;
                         player.isGrounded = false;
                         sound.playPad();
-                        createParticles(obj.x + 20, oy, '#ffffff', 10);
+                        createParticles(obj.x + 20, oy, '#ffe600', 10);
                     }
                 } else if (obj.type === 'AIRPLANE_PORTAL') {
                     if (px + ps > obj.x && px < obj.x + 40 && py + ps > oy && py < oy + 40) {
                         if (player.mode !== 'airplane') {
                             player.mode = 'airplane';
                             player.airplaneLane = 0;
-                            createParticles(obj.x + 20, oy + 20, '#ffffff', 15);
+                            createParticles(obj.x + 20, oy + 20, '#ff8c00', 15);
                             sound.playOrb();
                         }
                     }
@@ -614,7 +588,7 @@
                         if (player.mode !== 'cube') {
                             player.mode = 'cube';
                             player.vy = 0;
-                            createParticles(obj.x + 20, oy + 20, '#ffffff', 15);
+                            createParticles(obj.x + 20, oy + 20, '#00f3ff', 15);
                             sound.playOrb();
                         }
                     }
@@ -637,7 +611,7 @@
 
         function handleDeath(reason) {
             sound.playExplode();
-            createParticles(player.x + player.size/2, player.y + player.size/2, '#ffffff', 22);
+            createParticles(player.x + player.size/2, player.y + player.size/2, '#ff007f', 22);
             attemptCount++;
             document.getElementById('hudAttemptText').innerText = `#${attemptCount}`;
             resetPlayer();
@@ -741,10 +715,18 @@
                     ctx.lineWidth = 1.5;
                     ctx.stroke();
                 } else if (obj.type === 'PAD') {
-                    ctx.fillStyle = '#ffffff';
+                    ctx.fillStyle = '#ffe600';
                     ctx.fillRect(-20, 8, 40, 12);
                     ctx.strokeStyle = '#000';
                     ctx.strokeRect(-20, 8, 40, 12);
+                } else if (obj.type === 'ORB') {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 14, 0, Math.PI * 2);
+                    ctx.fillStyle = obj.used ? '#475569' : '#ffe600';
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
                 } else if (obj.type === 'GRAVITY_ORB') {
                     ctx.beginPath();
                     ctx.arc(0, 0, 14, 0, Math.PI * 2);
@@ -790,4 +772,254 @@
 
             if (currentMode !== 'EDITOR') {
                 player.trail.forEach(t => {
-                    ctx
+                    ctx.fillStyle = `rgba(255, 255, 255, ${t.alpha})`;
+                    ctx.fillRect(t.x - 12, t.y - 12, 24, 24);
+                });
+
+                ctx.save();
+                ctx.translate(player.x + player.size/2, player.y + player.size/2);
+                ctx.rotate((player.rotation * Math.PI) / 180);
+
+                if (player.mode === 'cube') {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(-player.size/2, -player.size/2, player.size, player.size);
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 2.5;
+                    ctx.strokeRect(-player.size/2, -player.size/2, player.size, player.size);
+                } else {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.moveTo(-15, 10);
+                    ctx.lineTo(20, 0);
+                    ctx.lineTo(-15, -10);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+                ctx.restore();
+            }
+
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size || 4, p.size || 4);
+            });
+
+            ctx.fillStyle = '#09090b';
+            ctx.fillRect(cameraX - 100, gy, canvas.width + 200, 80);
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(cameraX - 100, gy);
+            ctx.lineTo(cameraX + canvas.width + 100, gy);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function createParticles(x, y, color, count = 8) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    color: color, alpha: 1
+                });
+            }
+        }
+
+        function loop() {
+            updatePhysics();
+            render();
+            requestAnimationFrame(loop);
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            sound.init();
+            if (currentMode === 'EDITOR' && e.button === 0) {
+                const rect = canvas.getBoundingClientRect();
+                const clickX = e.clientX - rect.left + editorCameraX;
+                const clickY = getGroundY() - (e.clientY - rect.top);
+
+                const snapX = Math.floor(clickX / GRID_SIZE) * GRID_SIZE;
+                const snapY = Math.floor(clickY / GRID_SIZE) * GRID_SIZE;
+
+                if (activeTool === 'ERASER') {
+                    levelObjects = levelObjects.filter(o => {
+                        const objH = o.h || 40;
+                        const objW = o.w || 40;
+                        return !(clickX >= o.x && clickX <= o.x + objW && clickY >= o.y && clickY <= o.y + objH);
+                    });
+                } else if (snapX >= 0 && snapY >= 0) {
+                    levelObjects = levelObjects.filter(o => !(o.x === snapX && o.y === snapY));
+                    if (activeTool === 'GOAL') {
+                        levelObjects = levelObjects.filter(o => o.type !== 'GOAL');
+                        levelObjects.push({ type: 'GOAL', x: snapX, y: snapY, w: 40, h: 40, rotation: currentRotation });
+                    } else {
+                        levelObjects.push({ type: activeTool, x: snapX, y: snapY, w: 40, h: 40, rotation: currentRotation });
+                    }
+                }
+            } else if (currentMode === 'PLAY') {
+                isJumpHeld = true;
+                executeAction();
+            }
+        });
+
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            if (currentMode === 'EDITOR') {
+                const rect = canvas.getBoundingClientRect();
+                const clickX = e.clientX - rect.left + editorCameraX;
+                const clickY = getGroundY() - (e.clientY - rect.top);
+
+                const existingIndex = levelObjects.findIndex(o => {
+                    const objH = o.h || 40;
+                    const objW = o.w || 40;
+                    return clickX >= o.x && clickX <= o.x + objW && clickY >= o.y && clickY <= o.y + objH;
+                });
+                if (existingIndex !== -1) {
+                    levelObjects.splice(existingIndex, 1);
+                }
+            }
+        });
+
+        window.addEventListener('mouseup', () => { isJumpHeld = false; });
+
+        window.addEventListener('keydown', (e) => {
+            if ((e.code === 'Space' || e.code === 'ArrowUp') && currentMode === 'PLAY') {
+                if (!isJumpHeld) executeAction();
+                isJumpHeld = true;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowUp') isJumpHeld = false;
+        });
+
+        function setMode(mode) {
+            currentMode = mode;
+            isRunning = false;
+            isJumpHeld = false;
+
+            const modeEditorBtn = document.getElementById('modeEditorBtn');
+            const modePlayBtn = document.getElementById('modePlayBtn');
+            const modeAIBtn = document.getElementById('modeAIBtn');
+            const editorControls = document.getElementById('editorScrollControls');
+            const bottomBar = document.getElementById('bottomEditorBar');
+            const playControls = document.getElementById('playControlsOverlay');
+            const aiLogs = document.getElementById('aiLogContainer');
+            const hudText = document.getElementById('hudModeText');
+
+            [modeEditorBtn, modePlayBtn, modeAIBtn].forEach(b => {
+                b.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-zinc-400 hover:text-white';
+            });
+
+            if (mode === 'EDITOR') {
+                modeEditorBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-black shadow-md';
+                editorControls.classList.remove('hidden');
+                bottomBar.classList.remove('hidden');
+                playControls.classList.add('hidden');
+                aiLogs.classList.add('hidden');
+                hudText.innerText = currentLang === 'ru' ? 'РЕДАКТОР' : 'EDITOR';
+                document.getElementById('winModal').classList.add('hidden');
+            } else if (mode === 'PLAY') {
+                modePlayBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-black shadow-md';
+                editorControls.classList.add('hidden');
+                bottomBar.classList.add('hidden');
+                playControls.classList.remove('hidden');
+                aiLogs.classList.add('hidden');
+                hudText.innerText = currentLang === 'ru' ? 'ИГРА' : 'PLAY';
+                resetPlayer();
+            } else if (mode === 'AI') {
+                modeAIBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-black shadow-md';
+                editorControls.classList.add('hidden');
+                bottomBar.classList.add('hidden');
+                playControls.classList.remove('hidden');
+                aiLogs.classList.remove('hidden');
+                hudText.innerText = 'SMART AI 2.0';
+                resetPlayer();
+            }
+        }
+
+        document.getElementById('modeEditorBtn').addEventListener('click', () => setMode('EDITOR'));
+        document.getElementById('modePlayBtn').addEventListener('click', () => setMode('PLAY'));
+        document.getElementById('modeAIBtn').addEventListener('click', () => setMode('AI'));
+
+        document.getElementById('btnPlayRestart').addEventListener('click', () => {
+            resetPlayer();
+            isRunning = true;
+            sound.init();
+        });
+
+        document.getElementById('btnWinRestart').addEventListener('click', () => {
+            resetPlayer();
+            isRunning = true;
+            sound.init();
+        });
+
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('tool-active'));
+                btn.classList.add('tool-active');
+                activeTool = btn.dataset.tool;
+            });
+        });
+
+        document.getElementById('btnRotateObject').addEventListener('click', () => {
+            currentRotation = (currentRotation + 90) % 360;
+            document.getElementById('rotValText').innerText = currentRotation + '°';
+        });
+
+        document.getElementById('btnClearAll').addEventListener('click', () => {
+            levelObjects = [];
+            document.getElementById('hudProgressBar').style.width = '0%';
+            document.getElementById('hudPercentText').innerText = '0%';
+        });
+
+        document.getElementById('btnScrollLeft').addEventListener('click', () => {
+            editorCameraX = Math.max(0, editorCameraX - 200);
+            document.getElementById('scrollPosText').innerText = `${editorCameraX}px`;
+        });
+        document.getElementById('btnScrollRight').addEventListener('click', () => {
+            editorCameraX += 200;
+            document.getElementById('scrollPosText').innerText = `${editorCameraX}px`;
+        });
+
+        document.getElementById('btnSoundToggle').addEventListener('click', () => {
+            sound.enabled = !sound.enabled;
+            document.getElementById('btnSoundToggle').innerHTML = sound.enabled 
+                ? (currentLang === 'ru' ? '🔊 Звук: Вкл' : '🔊 Sound: On') 
+                : (currentLang === 'ru' ? '🔇 Звук: Выкл' : '🔇 Sound: Off');
+        });
+
+        document.getElementById('btnExportLevel').addEventListener('click', () => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(levelObjects, null, 2));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", "my_gd_level.json");
+            dl.click();
+            dl.remove();
+        });
+
+        document.getElementById('btnImportLevel').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    levelObjects = JSON.parse(event.target.result);
+                    resetPlayer();
+                    alert(currentLang === 'ru' ? 'Уровень успешно загружен!' : 'Level loaded successfully!');
+                } catch (err) {
+                    alert(currentLang === 'ru' ? 'Ошибка загрузки JSON-файла!' : 'Error loading JSON file!');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        setMode('EDITOR');
+        requestAnimationFrame(loop);
+    </script>
+</body>
+</html>
