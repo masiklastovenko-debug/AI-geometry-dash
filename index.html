@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry AI v1.2 - Full Edition</title>
+    <title>Geometry AI v1.2 - Fixed Gravity Pad</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <script>
@@ -75,7 +75,7 @@
                         v1.2
                     </span>
                 </div>
-                <p class="text-[11px] text-zinc-400 font-mono" id="subHeaderDesc">Вкладки • Музыка • Рабочие Грави-Орбы и Батуты</p>
+                <p class="text-[11px] text-zinc-400 font-mono" id="subHeaderDesc">Вкладки • Музыка • Починенный Грави-Батут</p>
             </div>
         </div>
 
@@ -370,7 +370,7 @@
                 { id: 'GOAL', icon: '🏁', ru: 'Финиш', en: 'Goal' }
             ],
             DELETE: [
-                { id: 'ERASER', icon: '❌', ru: 'Ластик', en: 'Eraser' }
+                { id: 'ERASER', icon: '❌', ru: 'Удалитель', en: 'Eraser' }
             ]
         };
 
@@ -679,9 +679,9 @@
                         createParticles(obj.x + 20, oy, '#ffe600', 10);
                     }
                 } else if (obj.type === 'GRAVITY_PAD' && player.mode === 'cube') {
+                    // ИСПРАВЛЕННЫЙ ГРАВИТАЦИОННЫЙ БАТУТ (срабатывает при касании)
                     if (px + ps > obj.x && px < obj.x + 40 && py + ps >= oy - 5 && py < oy + 20) {
                         triggerGravityPad();
-                        player.isGrounded = false;
                         createParticles(obj.x + 20, oy, '#ffffff', 12);
                     }
                 } else if (obj.type === 'AIRPLANE_PORTAL') {
