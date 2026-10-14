@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry AI v1.2 - Full Edition</title>
+    <title>Geometry AI v1.2 - Gravity Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <script>
@@ -70,7 +70,7 @@
                         v1.2
                     </span>
                 </div>
-                <p class="text-[11px] text-zinc-400 font-mono" id="subHeaderDesc">Кубик • Самолётик • Батуты • Орбы • Автопилот ИИ</p>
+                <p class="text-[11px] text-zinc-400 font-mono" id="subHeaderDesc">Чёрные шипы • Грави-Батут • Грави-Орб • Автопилот ИИ</p>
             </div>
         </div>
 
@@ -159,7 +159,7 @@
                 <span id="aiStatusBadge" class="text-zinc-400">Сканирование траектории...</span>
             </div>
             <div id="aiThoughtLog" class="h-16 bg-black rounded-lg p-2.5 font-mono text-[11px] text-zinc-300 overflow-y-auto custom-scrollbar flex flex-col gap-1 border border-zinc-800">
-                <div class="text-zinc-400">[ИИ 2.0]: Автопилот куба и самолётика готов!</div>
+                <div class="text-zinc-400">[ИИ 2.0]: Автопилот готов к работе!</div>
             </div>
         </div>
 
@@ -175,11 +175,15 @@
                     <span class="text-base">⬛</span> <span data-ru="Блок" data-en="Block">Блок</span>
                 </button>
 
-                <button data-tool="PAD" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-yellow-400 hover:bg-zinc-700 transition shrink-0">
+                <button data-tool="PAD" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-200 hover:bg-zinc-700 transition shrink-0">
                     <span class="text-base">🟨</span> <span data-ru="Батут" data-en="Jump Pad">Батут</span>
                 </button>
 
-                <button data-tool="ORB" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-yellow-300 hover:bg-zinc-700 transition shrink-0">
+                <button data-tool="GRAVITY_PAD" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-white hover:bg-zinc-700 transition shrink-0">
+                    <span class="text-base">⏺️</span> <span data-ru="Грави-Батут" data-en="Grav-Pad">Грави-Батут</span>
+                </button>
+
+                <button data-tool="ORB" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-200 hover:bg-zinc-700 transition shrink-0">
                     <span class="text-base">🟡</span> <span data-ru="Орб" data-en="Jump Orb">Орб</span>
                 </button>
 
@@ -187,19 +191,19 @@
                     <span class="text-base">⚪</span> <span data-ru="Грави-Орб" data-en="Grav-Orb">Грави-Орб</span>
                 </button>
 
-                <button data-tool="AIRPLANE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-orange-400 hover:bg-zinc-700 transition shrink-0">
+                <button data-tool="AIRPLANE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-300 hover:bg-zinc-700 transition shrink-0">
                     <span class="text-base">✈️</span> <span data-ru="Портал Самолётика" data-en="Airplane Portal">Портал Самолётика</span>
                 </button>
 
-                <button data-tool="CUBE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-cyan-400 hover:bg-zinc-700 transition shrink-0">
+                <button data-tool="CUBE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-300 hover:bg-zinc-700 transition shrink-0">
                     <span class="text-base">🟦</span> <span data-ru="Портал Кубика" data-en="Cube Portal">Портал Кубика</span>
                 </button>
 
-                <button data-tool="GOAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-emerald-400 hover:bg-zinc-700 transition shrink-0">
+                <button data-tool="GOAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-100 hover:bg-zinc-700 transition shrink-0">
                     <span class="text-base">🏁</span> <span data-ru="Финиш" data-en="Goal">Финиш</span>
                 </button>
 
-                <button data-tool="ERASER" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-red-400 hover:bg-zinc-700 transition shrink-0">
+                <button data-tool="ERASER" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-400 hover:bg-zinc-700 transition shrink-0">
                     <span class="text-base">❌</span> <span data-ru="Ластик" data-en="Eraser">Ластик</span>
                 </button>
             </div>
@@ -310,7 +314,6 @@
 
         let levelObjects = [];
         let particles = [];
-        let aiPredictedTrajectory = [];
 
         function resizeCanvas() {
             const rect = canvas.getBoundingClientRect();
@@ -362,7 +365,13 @@
             player.vy = ORB_FORCE * player.gravityDir;
             player.isGrounded = false;
             sound.playOrb();
-            createParticles(orbObj.x + 20, getGroundY() - orbObj.y - 20, '#ffe600', 12);
+            createParticles(orbObj.x + 20, getGroundY() - orbObj.y - 20, '#ffffff', 12);
+        }
+
+        function triggerGravityPad() {
+            player.gravityDir *= -1;
+            player.vy = player.gravityDir * -12;
+            sound.playPad();
         }
 
         function isLaneSafe(lane, futureX) {
@@ -396,13 +405,11 @@
                 if (obj.type === 'GRAVITY_ORB') {
                     if (Math.abs(player.x - obj.x) < 45 && Math.abs(player.y - oy) < 55) {
                         triggerGravityOrb(obj);
-                        logAIThought("ИИ активировал Грави-Орб!");
                     }
                 } else if (obj.type === 'ORB' && !obj.used) {
                     if (Math.abs(player.x - obj.x) < 45 && Math.abs(player.y - oy) < 55) {
                         triggerJumpOrb(obj);
                         obj.used = true;
-                        logAIThought("ИИ активировал Орб!");
                     }
                 }
             });
@@ -413,7 +420,6 @@
                 });
                 if (obstacleAhead) {
                     executeAction();
-                    logAIThought("Куб: Прыжок через препятствие!");
                 }
             } else if (player.mode === 'airplane') {
                 let futureX = player.x + 60;
@@ -427,23 +433,11 @@
                         if (isLaneSafe(candidate, futureX)) {
                             player.airplaneLane = candidate;
                             sound.playJump();
-                            createParticles(player.x, player.y, '#ff8c00', 8);
-                            logAIThought(`Самолётик: Манёвр на полосу #${candidate + 1}`);
                             break;
                         }
                     }
                 }
             }
-        }
-
-        function logAIThought(text) {
-            const logBox = document.getElementById('aiThoughtLog');
-            if (!logBox) return;
-            const item = document.createElement('div');
-            item.className = 'text-zinc-300';
-            item.innerText = `[ИИ Автопилот]: ${text}`;
-            logBox.appendChild(item);
-            logBox.scrollTop = logBox.scrollHeight;
         }
 
         function executeAction() {
@@ -572,14 +566,20 @@
                         player.vy = PAD_FORCE * player.gravityDir;
                         player.isGrounded = false;
                         sound.playPad();
-                        createParticles(obj.x + 20, oy, '#ffe600', 10);
+                        createParticles(obj.x + 20, oy, '#ffffff', 10);
+                    }
+                } else if (obj.type === 'GRAVITY_PAD' && player.mode === 'cube') {
+                    if (px + ps > obj.x && px < obj.x + 40 && py + ps >= oy - 5 && py < oy + 20) {
+                        triggerGravityPad();
+                        player.isGrounded = false;
+                        createParticles(obj.x + 20, oy, '#ffffff', 12);
                     }
                 } else if (obj.type === 'AIRPLANE_PORTAL') {
                     if (px + ps > obj.x && px < obj.x + 40 && py + ps > oy && py < oy + 40) {
                         if (player.mode !== 'airplane') {
                             player.mode = 'airplane';
                             player.airplaneLane = 0;
-                            createParticles(obj.x + 20, oy + 20, '#ff8c00', 15);
+                            createParticles(obj.x + 20, oy + 20, '#ffffff', 15);
                             sound.playOrb();
                         }
                     }
@@ -588,7 +588,7 @@
                         if (player.mode !== 'cube') {
                             player.mode = 'cube';
                             player.vy = 0;
-                            createParticles(obj.x + 20, oy + 20, '#00f3ff', 15);
+                            createParticles(obj.x + 20, oy + 20, '#ffffff', 15);
                             sound.playOrb();
                         }
                     }
@@ -611,7 +611,7 @@
 
         function handleDeath(reason) {
             sound.playExplode();
-            createParticles(player.x + player.size/2, player.y + player.size/2, '#ff007f', 22);
+            createParticles(player.x + player.size/2, player.y + player.size/2, '#ffffff', 22);
             attemptCount++;
             document.getElementById('hudAttemptText').innerText = `#${attemptCount}`;
             resetPlayer();
@@ -704,27 +704,39 @@
                     ctx.lineWidth = 2;
                     ctx.strokeRect(-19, -19, 38, 38);
                 } else if (obj.type === 'SPIKE') {
+                    // ⬛ Чёрный треугольный шип с белым контуром
                     ctx.beginPath();
                     ctx.moveTo(-20, 20);
                     ctx.lineTo(0, -20);
                     ctx.lineTo(20, 20);
                     ctx.closePath();
-                    ctx.fillStyle = '#ffffff';
+                    ctx.fillStyle = '#000000';
                     ctx.fill();
-                    ctx.strokeStyle = '#000000';
-                    ctx.lineWidth = 1.5;
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
                     ctx.stroke();
                 } else if (obj.type === 'PAD') {
-                    ctx.fillStyle = '#ffe600';
+                    ctx.fillStyle = '#ffffff';
                     ctx.fillRect(-20, 8, 40, 12);
                     ctx.strokeStyle = '#000';
                     ctx.strokeRect(-20, 8, 40, 12);
+                } else if (obj.type === 'GRAVITY_PAD') {
+                    // ⏺️ Новый гравитационный батут
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(-20, 8, 40, 12);
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(-20, 8, 40, 12);
+                    ctx.beginPath();
+                    ctx.arc(0, 14, 4, 0, Math.PI * 2);
+                    ctx.fillStyle = '#000000';
+                    ctx.fill();
                 } else if (obj.type === 'ORB') {
                     ctx.beginPath();
                     ctx.arc(0, 0, 14, 0, Math.PI * 2);
-                    ctx.fillStyle = obj.used ? '#475569' : '#ffe600';
+                    ctx.fillStyle = obj.used ? '#475569' : '#ffffff';
                     ctx.fill();
-                    ctx.strokeStyle = '#ffffff';
+                    ctx.strokeStyle = '#000000';
                     ctx.lineWidth = 2.5;
                     ctx.stroke();
                 } else if (obj.type === 'GRAVITY_ORB') {
