@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry AI v1.2 - Tabs & Styled Edition</title>
+    <title>Geometry AI v1.2 - Fixed Gravity Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <script>
@@ -75,7 +75,7 @@
                         v1.2
                     </span>
                 </div>
-                <p class="text-[11px] text-zinc-400 font-mono" id="subHeaderDesc">Вкладки • Музыка • Цветные Орбы • Чёрно-Белый Стил</p>
+                <p class="text-[11px] text-zinc-400 font-mono" id="subHeaderDesc">Исправлены Грави-Орбы • Вкладки • Музыка</p>
             </div>
         </div>
 
@@ -171,10 +171,7 @@
             </div>
         </div>
 
-        <!-- Панель редактора с вкладками -->
         <div id="bottomEditorBar" class="bg-zinc-900/95 border border-zinc-800 rounded-2xl p-3 shadow-2xl flex flex-col gap-2.5">
-            
-            <!-- Вкладки категорий -->
             <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar border-b border-zinc-800 pb-2">
                 <button data-tab="ORBS" class="tab-btn tab-active px-3 py-1.5 rounded-xl bg-zinc-800 text-xs font-bold text-zinc-300 transition shrink-0">
                     ⚪ <span data-ru="Орбы и Батуты" data-en="Orbs & Pads">Орбы и Батуты</span>
@@ -193,11 +190,8 @@
                 </button>
             </div>
 
-            <!-- Содержимое активной вкладки -->
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <div id="tabContentContainer" class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 w-full md:w-auto">
-                    <!-- Динамически заполняется через JS в зависимости от вкладки -->
-                </div>
+                <div id="tabContentContainer" class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 w-full md:w-auto"></div>
 
                 <div class="flex items-center gap-2">
                     <button id="btnRotateObject" class="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-lg">
@@ -209,7 +203,6 @@
                     </button>
                 </div>
             </div>
-
         </div>
 
     </main>
@@ -232,7 +225,6 @@
         }
         document.getElementById('btnLangToggle').addEventListener('click', toggleLanguage);
 
-        // Музыкальный движок (Chiptune Background Music)
         class MusicEngine {
             constructor() {
                 this.ctx = null;
@@ -290,7 +282,7 @@
             const state = music.toggle();
             document.getElementById('btnMusicToggle').innerHTML = state 
                 ? (currentLang === 'ru' ? '🎵 Музыка: Вкл' : '🎵 Music: On') 
-                : (currentLang === 'ru' ? '🔇 Музыка: Выкл' : '🔇 Music: Off');
+                : (currentLang === 'ru' ? '🔇 Музыка: Выкл' : '🎵 Music: Off');
         });
 
         class SoundFX {
@@ -373,7 +365,7 @@
                 { id: 'GOAL', icon: '🏁', ru: 'Финиш', en: 'Goal' }
             ],
             DELETE: [
-                { id: 'ERASER', icon: '❌', ru: 'Ластик', en: 'Eraser' }
+                { id: 'ERASER', icon: '❌', ru: 'Удалитель', en: 'Eraser' }
             ]
         };
 
@@ -467,7 +459,8 @@
 
         function triggerGravityOrb(orbObj) {
             player.gravityDir *= -1;
-            player.vy = player.gravityDir * -6;
+            player.vy = player.gravityDir * -5;
+            player.isGrounded = false;
             sound.playOrb();
             createParticles(orbObj.x + 20, getGroundY() - orbObj.y - 20, '#ffffff', 14);
         }
@@ -481,7 +474,8 @@
 
         function triggerGravityPad() {
             player.gravityDir *= -1;
-            player.vy = player.gravityDir * -12;
+            player.vy = PAD_FORCE * player.gravityDir;
+            player.isGrounded = false;
             sound.playPad();
         }
 
@@ -557,7 +551,7 @@
 
             let hitGravOrb = levelObjects.find(obj => {
                 const oy = gy - obj.y - (obj.h || 40);
-                return obj.type === 'GRAVITY_ORB' && Math.abs(player.x - obj.x) < 50 && Math.abs(player.y - oy) < 60;
+                return obj.type === 'GRAVITY_ORB' && Math.abs(player.x - obj.x) < 55 && Math.abs(player.y - oy) < 65;
             });
 
             if (hitGravOrb) {
@@ -567,7 +561,7 @@
 
             let hitOrb = levelObjects.find(obj => {
                 const oy = gy - obj.y - (obj.h || 40);
-                return obj.type === 'ORB' && !obj.used && Math.abs(player.x - obj.x) < 50 && Math.abs(player.y - oy) < 60;
+                return obj.type === 'ORB' && !obj.used && Math.abs(player.x - obj.x) < 55 && Math.abs(player.y - oy) < 65;
             });
 
             if (hitOrb) {
@@ -815,7 +809,6 @@
                     ctx.lineWidth = 2;
                     ctx.strokeRect(-19, -19, 38, 38);
                 } else if (obj.type === 'SPIKE') {
-                    // 🔺 Чёрный шип с белой обводкой
                     ctx.beginPath();
                     ctx.moveTo(-20, 20);
                     ctx.lineTo(0, -20);
@@ -827,14 +820,12 @@
                     ctx.lineWidth = 2;
                     ctx.stroke();
                 } else if (obj.type === 'PAD') {
-                    // 🟨 Жёлтый батут
                     ctx.fillStyle = '#ffe600';
                     ctx.fillRect(-20, 8, 40, 12);
                     ctx.strokeStyle = '#000000';
                     ctx.lineWidth = 2;
                     ctx.strokeRect(-20, 8, 40, 12);
                 } else if (obj.type === 'GRAVITY_PAD') {
-                    // ⏺️ Белый гравитационный батут
                     ctx.fillStyle = '#ffffff';
                     ctx.fillRect(-20, 8, 40, 12);
                     ctx.strokeStyle = '#000000';
@@ -845,7 +836,6 @@
                     ctx.fillStyle = '#000000';
                     ctx.fill();
                 } else if (obj.type === 'ORB') {
-                    // 🟡 Жёлтый орб
                     ctx.beginPath();
                     ctx.arc(0, 0, 14, 0, Math.PI * 2);
                     ctx.fillStyle = obj.used ? '#475569' : '#ffe600';
@@ -854,7 +844,6 @@
                     ctx.lineWidth = 2.5;
                     ctx.stroke();
                 } else if (obj.type === 'GRAVITY_ORB') {
-                    // ⚪ Белый гравитационный орб
                     ctx.beginPath();
                     ctx.arc(0, 0, 14, 0, Math.PI * 2);
                     ctx.fillStyle = '#ffffff';
@@ -868,7 +857,6 @@
                     ctx.lineWidth = 2;
                     ctx.stroke();
                 } else if (obj.type === 'AIRPLANE_PORTAL') {
-                    // ✈️ Оранжевый портал самолётика
                     ctx.fillStyle = '#ff8c00';
                     ctx.fillRect(-10, -25, 20, 50);
                     ctx.strokeStyle = '#fff';
@@ -878,7 +866,6 @@
                     ctx.font = 'bold 8px monospace';
                     ctx.fillText('AIR', -9, 3);
                 } else if (obj.type === 'CUBE_PORTAL') {
-                    // 🟩 Зелёный портал кубика
                     ctx.fillStyle = '#00ff66';
                     ctx.fillRect(-10, -25, 20, 50);
                     ctx.strokeStyle = '#fff';
