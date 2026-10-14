@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry AI v1.2 - Gravity Edition</title>
+    <title>Geometry AI v1.2 - Tabs & Styled Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
     <script>
@@ -44,6 +44,11 @@
             color: #ffffff !important;
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
         }
+        .tab-active {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            font-weight: 900 !important;
+        }
         @keyframes cubeGlow {
             0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6)); }
             50% { filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.9)); }
@@ -70,7 +75,7 @@
                         v1.2
                     </span>
                 </div>
-                <p class="text-[11px] text-zinc-400 font-mono" id="subHeaderDesc">Чёрные шипы • Грави-Батут • Грави-Орб • Автопилот ИИ</p>
+                <p class="text-[11px] text-zinc-400 font-mono" id="subHeaderDesc">Вкладки • Музыка • Цветные Орбы • Чёрно-Белый Стил</p>
             </div>
         </div>
 
@@ -92,6 +97,9 @@
             </button>
             <button id="btnSoundToggle" class="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs font-bold text-zinc-300 transition">
                 🔊 <span data-ru="Звук: Вкл" data-en="Sound: On">Звук: Вкл</span>
+            </button>
+            <button id="btnMusicToggle" class="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs font-bold text-yellow-400 transition">
+                🎵 <span data-ru="Музыка: Вкл" data-en="Music: On">Музыка: Вкл</span>
             </button>
             <button id="btnExportLevel" class="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs font-bold text-zinc-200 transition">
                 💾 <span data-ru="Сохранить" data-en="Save">Сохранить</span>
@@ -163,60 +171,45 @@
             </div>
         </div>
 
-        <div id="bottomEditorBar" class="bg-zinc-900/95 border border-zinc-800 rounded-2xl p-3 shadow-2xl flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 w-full md:w-auto">
-                <span class="text-xs font-mono font-bold text-zinc-400 mr-1 uppercase shrink-0" id="toolLabelText">Инструмент:</span>
-                
-                <button data-tool="SPIKE" class="tool-btn tool-active px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 transition shrink-0">
-                    <span class="text-base">🔺</span> <span data-ru="Шип" data-en="Spike">Шип</span>
+        <!-- Панель редактора с вкладками -->
+        <div id="bottomEditorBar" class="bg-zinc-900/95 border border-zinc-800 rounded-2xl p-3 shadow-2xl flex flex-col gap-2.5">
+            
+            <!-- Вкладки категорий -->
+            <div class="flex items-center gap-1.5 overflow-x-auto custom-scrollbar border-b border-zinc-800 pb-2">
+                <button data-tab="ORBS" class="tab-btn tab-active px-3 py-1.5 rounded-xl bg-zinc-800 text-xs font-bold text-zinc-300 transition shrink-0">
+                    ⚪ <span data-ru="Орбы и Батуты" data-en="Orbs & Pads">Орбы и Батуты</span>
                 </button>
-
-                <button data-tool="BLOCK" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-300 hover:bg-zinc-700 transition shrink-0">
-                    <span class="text-base">⬛</span> <span data-ru="Блок" data-en="Block">Блок</span>
+                <button data-tab="SPIKES" class="tab-btn px-3 py-1.5 rounded-xl bg-zinc-800 text-xs font-bold text-zinc-300 hover:text-white transition shrink-0">
+                    🔺 <span data-ru="Шипы" data-en="Spikes">Шипы</span>
                 </button>
-
-                <button data-tool="PAD" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-200 hover:bg-zinc-700 transition shrink-0">
-                    <span class="text-base">🟨</span> <span data-ru="Батут" data-en="Jump Pad">Батут</span>
+                <button data-tab="CUBES" class="tab-btn px-3 py-1.5 rounded-xl bg-zinc-800 text-xs font-bold text-zinc-300 hover:text-white transition shrink-0">
+                    ⬛ <span data-ru="Блоки и Кубы" data-en="Blocks & Cubes">Блоки и Кубы</span>
                 </button>
-
-                <button data-tool="GRAVITY_PAD" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-white hover:bg-zinc-700 transition shrink-0">
-                    <span class="text-base">⏺️</span> <span data-ru="Грави-Батут" data-en="Grav-Pad">Грави-Батут</span>
+                <button data-tab="FINISHES" class="tab-btn px-3 py-1.5 rounded-xl bg-zinc-800 text-xs font-bold text-zinc-300 hover:text-white transition shrink-0">
+                    🏁 <span data-ru="Финиши" data-en="Finishes">Финиши</span>
                 </button>
-
-                <button data-tool="ORB" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-200 hover:bg-zinc-700 transition shrink-0">
-                    <span class="text-base">🟡</span> <span data-ru="Орб" data-en="Jump Orb">Орб</span>
-                </button>
-
-                <button data-tool="GRAVITY_ORB" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-white hover:bg-zinc-700 transition shrink-0">
-                    <span class="text-base">⚪</span> <span data-ru="Грави-Орб" data-en="Grav-Orb">Грави-Орб</span>
-                </button>
-
-                <button data-tool="AIRPLANE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-300 hover:bg-zinc-700 transition shrink-0">
-                    <span class="text-base">✈️</span> <span data-ru="Портал Самолётика" data-en="Airplane Portal">Портал Самолётика</span>
-                </button>
-
-                <button data-tool="CUBE_PORTAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-300 hover:bg-zinc-700 transition shrink-0">
-                    <span class="text-base">🟦</span> <span data-ru="Портал Кубика" data-en="Cube Portal">Портал Кубика</span>
-                </button>
-
-                <button data-tool="GOAL" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-100 hover:bg-zinc-700 transition shrink-0">
-                    <span class="text-base">🏁</span> <span data-ru="Финиш" data-en="Goal">Финиш</span>
-                </button>
-
-                <button data-tool="ERASER" class="tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 text-zinc-400 hover:bg-zinc-700 transition shrink-0">
-                    <span class="text-base">❌</span> <span data-ru="Ластик" data-en="Eraser">Ластик</span>
+                <button data-tab="DELETE" class="tab-btn px-3 py-1.5 rounded-xl bg-zinc-800 text-xs font-bold text-zinc-300 hover:text-white transition shrink-0">
+                    ❌ <span data-ru="Удалитель" data-en="Eraser">Удалитель</span>
                 </button>
             </div>
 
-            <div class="flex items-center gap-2">
-                <button id="btnRotateObject" class="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-lg">
-                    🔄 <span id="rotLabelText">Поворот</span>: <span id="rotValText">0°</span>
-                </button>
+            <!-- Содержимое активной вкладки -->
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div id="tabContentContainer" class="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 w-full md:w-auto">
+                    <!-- Динамически заполняется через JS в зависимости от вкладки -->
+                </div>
 
-                <button id="btnClearAll" class="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-lg">
-                    🗑️ <span data-ru="Очистить карту" data-en="Clear All">Очистить карту</span>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button id="btnRotateObject" class="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-lg">
+                        🔄 <span id="rotLabelText">Поворот</span>: <span id="rotValText">0°</span>
+                    </button>
+
+                    <button id="btnClearAll" class="px-3.5 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-lg">
+                        🗑️ <span data-ru="Очистить карту" data-en="Clear All">Очистить карту</span>
+                    </button>
+                </div>
             </div>
+
         </div>
 
     </main>
@@ -231,13 +224,74 @@
             });
             document.getElementById('logoTitleText').innerText = currentLang === 'ru' ? 'Геометрия ИИ' : 'GEOMETRY AI';
             document.getElementById('camLabel').innerText = currentLang === 'ru' ? 'Камера:' : 'Camera:';
-            document.getElementById('toolLabelText').innerText = currentLang === 'ru' ? 'Инструмент:' : 'Tool:';
             document.getElementById('rotLabelText').innerText = currentLang === 'ru' ? 'Поворот' : 'Rotate';
             document.getElementById('editorHintText').innerHTML = currentLang === 'ru' 
                 ? '💡 ЛКМ — поставить, ПКМ — удалить конкретный объект!' 
                 : '💡 LMB — place, RMB — remove specific object!';
+            renderToolBar();
         }
         document.getElementById('btnLangToggle').addEventListener('click', toggleLanguage);
+
+        // Музыкальный движок (Chiptune Background Music)
+        class MusicEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+                this.timer = null;
+                this.step = 0;
+            }
+            start() {
+                if (!this.enabled) return;
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+                if (this.timer) return;
+
+                const melody = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63, 440.00, 523.25];
+                this.timer = setInterval(() => {
+                    if (!this.enabled || !this.ctx) return;
+                    try {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(melody[this.step % melody.length], this.ctx.currentTime);
+                        gain.gain.setValueAtTime(0.03, this.ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.18);
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start();
+                        osc.stop(this.ctx.currentTime + 0.18);
+                        this.step++;
+                    } catch(e){}
+                }, 160);
+            }
+            stop() {
+                if (this.timer) {
+                    clearInterval(this.timer);
+                    this.timer = null;
+                }
+            }
+            toggle() {
+                this.enabled = !this.enabled;
+                if (this.enabled) {
+                    this.start();
+                } else {
+                    this.stop();
+                }
+                return this.enabled;
+            }
+        }
+
+        const music = new MusicEngine();
+        document.getElementById('btnMusicToggle').addEventListener('click', () => {
+            const state = music.toggle();
+            document.getElementById('btnMusicToggle').innerHTML = state 
+                ? (currentLang === 'ru' ? '🎵 Музыка: Вкл' : '🎵 Music: On') 
+                : (currentLang === 'ru' ? '🔇 Музыка: Выкл' : '🔇 Music: Off');
+        });
 
         class SoundFX {
             constructor() {
@@ -251,6 +305,7 @@
                 if (this.ctx.state === 'suspended') {
                     this.ctx.resume();
                 }
+                music.start();
             }
             playTone(freq, duration, type = 'sine', gainVal = 0.1) {
                 if (!this.enabled || !this.ctx) return;
@@ -285,7 +340,7 @@
 
         const GRID_SIZE = 40;
         const BASE_GRAVITY = 0.65;
-        const JUMP_FORCE = -10.2; // 📉 Идеальный уменьшенный прыжок
+        const JUMP_FORCE = -10.2;
         const PAD_FORCE = -14.5;
         const ORB_FORCE = -11.0;
         const GAME_SPEED = 6.5;
@@ -294,9 +349,65 @@
         let isRunning = false;
         let attemptCount = 1;
         let editorCameraX = 0;
-        let activeTool = 'SPIKE';
+        let activeTab = 'ORBS';
+        let activeTool = 'ORB';
         let currentRotation = 0;
         let isJumpHeld = false;
+
+        const tabsData = {
+            ORBS: [
+                { id: 'ORB', icon: '🟡', ru: 'Орб', en: 'Jump Orb' },
+                { id: 'GRAVITY_ORB', icon: '⚪', ru: 'Грави-Орб', en: 'Grav-Orb' },
+                { id: 'PAD', icon: '🟨', ru: 'Батут', en: 'Jump Pad' },
+                { id: 'GRAVITY_PAD', icon: '⏺️', ru: 'Грави-Батут', en: 'Grav-Pad' },
+                { id: 'AIRPLANE_PORTAL', icon: '✈️', ru: 'Портал Самолётика', en: 'Airplane Portal' },
+                { id: 'CUBE_PORTAL', icon: '🟩', ru: 'Портал Кубика', en: 'Cube Portal' }
+            ],
+            SPIKES: [
+                { id: 'SPIKE', icon: '🔺', ru: 'Шип', en: 'Spike' }
+            ],
+            CUBES: [
+                { id: 'BLOCK', icon: '⬛', ru: 'Блок', en: 'Block' }
+            ],
+            FINISHES: [
+                { id: 'GOAL', icon: '🏁', ru: 'Финиш', en: 'Goal' }
+            ],
+            DELETE: [
+                { id: 'ERASER', icon: '❌', ru: 'Ластик', en: 'Eraser' }
+            ]
+        };
+
+        function renderToolBar() {
+            const container = document.getElementById('tabContentContainer');
+            container.innerHTML = '';
+            const tools = tabsData[activeTab] || [];
+
+            tools.forEach(t => {
+                const btn = document.createElement('button');
+                btn.className = `tool-btn px-3 py-2 rounded-xl border border-zinc-700 bg-zinc-800 text-xs font-bold flex items-center gap-2 transition shrink-0 ${activeTool === t.id ? 'tool-active' : 'text-zinc-300 hover:bg-zinc-700'}`;
+                btn.dataset.tool = t.id;
+                btn.innerHTML = `<span class="text-base">${t.icon}</span> <span>${currentLang === 'ru' ? t.ru : t.en}</span>`;
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('tool-active'));
+                    btn.classList.add('tool-active');
+                    activeTool = t.id;
+                });
+                container.appendChild(btn);
+            });
+        }
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+                btn.classList.add('tab-active');
+                activeTab = btn.dataset.tab;
+                const firstTool = tabsData[activeTab][0].id;
+                activeTool = firstTool;
+                renderToolBar();
+            });
+        });
+
+        renderToolBar();
 
         const player = {
             x: 0,
@@ -307,7 +418,7 @@
             rotation: 0,
             isGrounded: false,
             mode: 'cube',
-            gravityDir: 1, // 1 = вниз, -1 = вверх
+            gravityDir: 1,
             airplaneLane: 0,
             trail: []
         };
@@ -365,7 +476,7 @@
             player.vy = ORB_FORCE * player.gravityDir;
             player.isGrounded = false;
             sound.playOrb();
-            createParticles(orbObj.x + 20, getGroundY() - orbObj.y - 20, '#ffffff', 12);
+            createParticles(orbObj.x + 20, getGroundY() - orbObj.y - 20, '#ffe600', 12);
         }
 
         function triggerGravityPad() {
@@ -566,7 +677,7 @@
                         player.vy = PAD_FORCE * player.gravityDir;
                         player.isGrounded = false;
                         sound.playPad();
-                        createParticles(obj.x + 20, oy, '#ffffff', 10);
+                        createParticles(obj.x + 20, oy, '#ffe600', 10);
                     }
                 } else if (obj.type === 'GRAVITY_PAD' && player.mode === 'cube') {
                     if (px + ps > obj.x && px < obj.x + 40 && py + ps >= oy - 5 && py < oy + 20) {
@@ -579,7 +690,7 @@
                         if (player.mode !== 'airplane') {
                             player.mode = 'airplane';
                             player.airplaneLane = 0;
-                            createParticles(obj.x + 20, oy + 20, '#ffffff', 15);
+                            createParticles(obj.x + 20, oy + 20, '#ff8c00', 15);
                             sound.playOrb();
                         }
                     }
@@ -588,7 +699,7 @@
                         if (player.mode !== 'cube') {
                             player.mode = 'cube';
                             player.vy = 0;
-                            createParticles(obj.x + 20, oy + 20, '#ffffff', 15);
+                            createParticles(obj.x + 20, oy + 20, '#00ff66', 15);
                             sound.playOrb();
                         }
                     }
@@ -678,7 +789,7 @@
             }
 
             if (isRunning && player.mode === 'airplane') {
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.strokeStyle = 'rgba(255, 140, 0, 0.4)';
                 ctx.setLineDash([6, 6]);
                 const laneHeights = [20, 120, 240];
                 for (let i = 0; i < 3; i++) {
@@ -704,7 +815,7 @@
                     ctx.lineWidth = 2;
                     ctx.strokeRect(-19, -19, 38, 38);
                 } else if (obj.type === 'SPIKE') {
-                    // ⬛ Чёрный треугольный шип с белым контуром
+                    // 🔺 Чёрный шип с белой обводкой
                     ctx.beginPath();
                     ctx.moveTo(-20, 20);
                     ctx.lineTo(0, -20);
@@ -716,12 +827,14 @@
                     ctx.lineWidth = 2;
                     ctx.stroke();
                 } else if (obj.type === 'PAD') {
-                    ctx.fillStyle = '#ffffff';
+                    // 🟨 Жёлтый батут
+                    ctx.fillStyle = '#ffe600';
                     ctx.fillRect(-20, 8, 40, 12);
-                    ctx.strokeStyle = '#000';
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = 2;
                     ctx.strokeRect(-20, 8, 40, 12);
                 } else if (obj.type === 'GRAVITY_PAD') {
-                    // ⏺️ Новый гравитационный батут
+                    // ⏺️ Белый гравитационный батут
                     ctx.fillStyle = '#ffffff';
                     ctx.fillRect(-20, 8, 40, 12);
                     ctx.strokeStyle = '#000000';
@@ -732,14 +845,16 @@
                     ctx.fillStyle = '#000000';
                     ctx.fill();
                 } else if (obj.type === 'ORB') {
+                    // 🟡 Жёлтый орб
                     ctx.beginPath();
                     ctx.arc(0, 0, 14, 0, Math.PI * 2);
-                    ctx.fillStyle = obj.used ? '#475569' : '#ffffff';
+                    ctx.fillStyle = obj.used ? '#475569' : '#ffe600';
                     ctx.fill();
                     ctx.strokeStyle = '#000000';
                     ctx.lineWidth = 2.5;
                     ctx.stroke();
                 } else if (obj.type === 'GRAVITY_ORB') {
+                    // ⚪ Белый гравитационный орб
                     ctx.beginPath();
                     ctx.arc(0, 0, 14, 0, Math.PI * 2);
                     ctx.fillStyle = '#ffffff';
@@ -753,21 +868,23 @@
                     ctx.lineWidth = 2;
                     ctx.stroke();
                 } else if (obj.type === 'AIRPLANE_PORTAL') {
-                    ctx.fillStyle = '#3f3f46';
+                    // ✈️ Оранжевый портал самолётика
+                    ctx.fillStyle = '#ff8c00';
                     ctx.fillRect(-10, -25, 20, 50);
                     ctx.strokeStyle = '#fff';
                     ctx.lineWidth = 2;
                     ctx.strokeRect(-10, -25, 20, 50);
-                    ctx.fillStyle = '#fff';
+                    ctx.fillStyle = '#000';
                     ctx.font = 'bold 8px monospace';
                     ctx.fillText('AIR', -9, 3);
                 } else if (obj.type === 'CUBE_PORTAL') {
-                    ctx.fillStyle = '#71717a';
+                    // 🟩 Зелёный портал кубика
+                    ctx.fillStyle = '#00ff66';
                     ctx.fillRect(-10, -25, 20, 50);
                     ctx.strokeStyle = '#fff';
                     ctx.lineWidth = 2;
                     ctx.strokeRect(-10, -25, 20, 50);
-                    ctx.fillStyle = '#fff';
+                    ctx.fillStyle = '#000';
                     ctx.font = 'bold 8px monospace';
                     ctx.fillText('CUBE', -12, 3);
                 } else if (obj.type === 'GOAL') {
@@ -799,14 +916,14 @@
                     ctx.lineWidth = 2.5;
                     ctx.strokeRect(-player.size/2, -player.size/2, player.size, player.size);
                 } else {
-                    ctx.fillStyle = '#ffffff';
+                    ctx.fillStyle = '#ff8c00';
                     ctx.beginPath();
                     ctx.moveTo(-15, 10);
                     ctx.lineTo(20, 0);
                     ctx.lineTo(-15, -10);
                     ctx.closePath();
                     ctx.fill();
-                    ctx.strokeStyle = '#000000';
+                    ctx.strokeStyle = '#ffffff';
                     ctx.lineWidth = 2;
                     ctx.stroke();
                 }
@@ -968,14 +1085,6 @@
             resetPlayer();
             isRunning = true;
             sound.init();
-        });
-
-        document.querySelectorAll('.tool-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('tool-active'));
-                btn.classList.add('tool-active');
-                activeTool = btn.dataset.tool;
-            });
         });
 
         document.getElementById('btnRotateObject').addEventListener('click', () => {
